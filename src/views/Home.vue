@@ -46,7 +46,7 @@
                 <button 
                   type="button" 
                   class="btn btn-primary my-4" 
-                  @click="generateCredentials"
+                  @click="generateAndCreateUser"
                   :disabled="loading">
                   {{ loading ? 'Generating...' : 'Generate New User' }}
                 </button>
@@ -73,104 +73,108 @@
   </div>
 </template>
 
-<script>
-import { mapState, mapGetters } from 'vuex';
+<script setup>
+import { ref } from 'vue';
 import { generateUsername } from '../api/username-generator';
 import dinopassApi from '../api/dinopass';
-import packetfenceApi from '../api/packetfence';
+// import packetfenceApi from '../api/packetfence'; // REMOVE Service import
+import axios from 'axios'; // ADD Axios import
 import moment from 'moment';
 
-export default {
-  name: 'Home',
-  data() {
-    return {
-      username: '',
-      password: '',
-      loading: false,
-      createdUser: null,
-      error: null,
-      expirationDate: '',
-      copySuccess: null,
-      copiedTimeout: null
-    };
-  },
-  computed: {
-    ...mapState(['generatedUsername', 'generatedPassword']),
-    ...mapGetters(['isLoading', 'hasError', 'errorMessage'])
-  },
-  methods: {
-    async generateCredentials() {
-      this.loading = true;
-      this.error = null;
-      this.createdUser = null;
-      
-      try {
-        // Generate username
-        this.username = generateUsername();
-        console.log('Generated username:', this.username);
-        
-        // Get password from DinoPass API
-        try {
-          this.password = await dinopassApi.getStrongPassword();
-          console.log('Got password from DinoPass');
-        } catch (dinoError) {
-          console.error('DinoPass API error:', dinoError);
-          throw new Error('Failed to generate password');
-        }
-        
-        // Create user in PacketFence
-        console.log('Attempting to create user in PacketFence...');
-        try {
-          const response = await packetfenceApi.createUser(this.username, this.password);
-          console.log('PacketFence response:', response);
-          this.createdUser = response.data;
-          this.expirationDate = moment().add(5, 'days').format('MMMM Do YYYY, h:mm a');
-        } catch (pfError) {
-          console.error('PacketFence API error details:', pfError);
-          // For 404 errors, provide more specific information
-          if (pfError.response && pfError.response.status === 404) {
-            throw new Error('PacketFence API endpoint not found (404). Please check the API URL configuration.');
-          }
-          throw pfError;
-        }
-      } catch (error) {
-        console.error('Error generating credentials:', error);
-        if (error.response) {
-          this.error = `Error ${error.response.status}: ${error.response.data?.message || error.message || 'Unknown error'}`;
-        } else if (error.request) {
-          this.error = `Network error: No response received. Check server availability.`;
-        } else {
-          this.error = error.message || 'Failed to create user. Please try again.';
-        }
-      } finally {
-        this.loading = false;
-      }
-    },
-    
-    copyToClipboard(text) {
-      if (!text) return;
-      
-      navigator.clipboard.writeText(text)
-        .then(() => {
-          // Clear previous timeout if it exists
-          if (this.copiedTimeout) {
-            clearTimeout(this.copiedTimeout);
-          }
-          
-          this.copySuccess = `Copied "${text}" to clipboard!`;
-          
-          // Auto-hide the success message after 3 seconds
-          this.copiedTimeout = setTimeout(() => {
-            this.copySuccess = null;
-          }, 3000);
-        })
-        .catch(err => {
-          console.error('Failed to copy text: ', err);
-          this.copySuccess = 'Failed to copy. Please try again.';
-        });
+// --- Reactive State ---
+const username = ref('');
+const password = ref('');
+const loading = ref(false);
+const createdUser = ref(null);
+const error = ref(null);
+const expirationDate = ref('');
+const copySuccess = ref(null);
+let copiedTimeout = null;
+
+// --- Methods ---
+const generateAndCreateUser = async () => {
+  loading.value = true;
+  error.value = null;
+  createdUser.value = null;
+  copySuccess.value = null;
+  username.value = '';
+  password.value = '';
+
+  try {
+    // 1. Generate Username
+    username.value = generateUsername();
+    console.log('Generated username:', username.value);
+
+    // 2. Generate Password
+    console.time('DinoPass API Call');
+    try {
+      password.value = await dinopassApi.getStrongPassword();
+      console.timeEnd('DinoPass API Call');
+      console.log('Got password from DinoPass');
+    } catch (dinoError) {
+      console.timeEnd('DinoPass API Call');
+      console.error('DinoPass API error:', dinoError);
+      throw new Error('Failed to generate password from DinoPass. Please try again.');
     }
+
+    // 3. Create User via Internal API directly using axios
+    console.log('Calling internal API /api-internal/create-user directly...');
+    try {
+      // Use axios directly, like the test page
+      const response = await axios.post('/api-internal/create-user', { 
+          username: username.value, 
+          password: password.value 
+      }); 
+      console.log('Internal API response received by Home.vue:', response.data);
+
+      if (response.data && response.data.success) {
+        createdUser.value = { username: username.value };
+        expirationDate.value = moment().add(5, 'days').format('MMMM Do YYYY, h:mm a');
+        error.value = null;
+      } else {
+        // Error message might be in response.data.message
+        throw new Error(response.data?.message || 'Internal API reported failure.');
+      }
+    } catch (axiosError) {
+      // Handle errors from the direct axios call to the internal API
+      console.error('Error calling internal API:', axiosError);
+      let message = axiosError.message;
+      if (axiosError.response && axiosError.response.data && axiosError.response.data.message) {
+          message = axiosError.response.data.message; // Use error message from internal API if available
+      }
+      throw new Error(message); // Re-throw error to be caught below
+    }
+
+  } catch (err) {
+    console.error('Error in generateAndCreateUser process:', err);
+    error.value = err.message || 'An unexpected error occurred.';
+    createdUser.value = null;
+  } finally {
+    loading.value = false;
   }
 };
+
+const copyToClipboard = (text) => {
+  if (!text) return;
+
+  navigator.clipboard.writeText(text)
+    .then(() => {
+      if (copiedTimeout) {
+        clearTimeout(copiedTimeout);
+      }
+      copySuccess.value = `Copied "${text}" to clipboard!`;
+      copiedTimeout = setTimeout(() => {
+        copySuccess.value = null;
+      }, 3000);
+    })
+    .catch(err => {
+      console.error('Failed to copy text: ', err);
+      copySuccess.value = 'Failed to copy. Please try again.';
+       if (copiedTimeout) clearTimeout(copiedTimeout);
+       copiedTimeout = setTimeout(() => { copySuccess.value = null; }, 3000);
+    });
+};
+
 </script>
 
 <style scoped>
