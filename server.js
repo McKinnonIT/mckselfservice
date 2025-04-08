@@ -129,11 +129,23 @@ app.post('/api-internal/create-user', async (req, res) => {
   }
 });
 
-// --- Catch-all for Frontend Routing ---
-// Handles any requests that don't match the API endpoint by serving index.html
-// This allows Vue Router to take over routing on the client-side.
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+// --- Catch-all / SPA Fallback Middleware ---
+// This needs to be after API routes and static file middleware
+app.use((req, res, next) => {
+  // If the request doesn't start with /api-internal and doesn't appear to have a file extension
+  if (!req.path.startsWith('/api-internal') && !path.extname(req.path)) {
+    // Serve the index.html for SPA routing
+    res.sendFile(path.join(__dirname, 'dist', 'index.html'), (err) => {
+        if (err) {
+            // Handle potential errors sending the file
+            console.error("Error sending index.html:", err);
+            res.status(500).end();
+        }
+    });
+  } else {
+    // Let other middleware (like static) or subsequent routes handle it
+    next();
+  }
 });
 
 // --- Start Server ---
