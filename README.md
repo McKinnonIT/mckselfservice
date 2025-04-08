@@ -55,9 +55,9 @@ PACKETFENCE_IGNORE_SSL=true
 
 ## Docker Usage
 
-1.  **Build the Docker image:**
+1.  **Build the Docker image after cloning the repository:**
     ```bash
-    docker build -t alastairtech/mckselfservice-app:latest .
+    docker build -t mckselfservice-app:latest .
     ```
 
 2.  **Run the container:**
