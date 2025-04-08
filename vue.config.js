@@ -47,7 +47,12 @@ module.exports = {
             console.error('[Internal API] FATAL: PacketFence credentials not found in .env');
             throw new Error("Server configuration error: Missing API credentials.");
           }
-          const pfBaseUrl = 'https://172.22.10.176:1443/api/v1'; 
+          // Remove default, require from .env
+          const pfBaseUrl = process.env.VUE_APP_PACKETFENCE_API_URL; 
+          if (!pfBaseUrl) {
+              console.error('[Internal API] FATAL: PacketFence API URL (VUE_APP_PACKETFENCE_API_URL) not found in .env');
+              throw new Error("Server configuration error: Missing PacketFence API URL.");
+          }
           const agent = new https.Agent({ rejectUnauthorized: false }); // Keep ignoring cert errors
 
           // --- Step 0: Login to get Token --- 

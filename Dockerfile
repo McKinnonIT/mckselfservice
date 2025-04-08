@@ -27,7 +27,6 @@ EXPOSE 8080
 # These should ideally be passed during docker run or via docker-compose
 # ENV VUE_APP_PACKETFENCE_USERNAME=your_default_pf_user
 # ENV VUE_APP_PACKETFENCE_PASSWORD=your_default_pf_password
-ENV VUE_APP_PACKETFENCE_API_URL=https://172.22.10.176:1443/api/v1
 ENV PACKETFENCE_IGNORE_SSL=true
 ENV NODE_ENV=production
 

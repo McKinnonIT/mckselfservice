@@ -31,8 +31,9 @@ When running locally using `npm run serve`, create a `.env` file in the root dir
 VUE_APP_PACKETFENCE_USERNAME=your-admin-username
 VUE_APP_PACKETFENCE_PASSWORD=your-admin-password
 
-# Optional: Override PacketFence API URL (Defaults to https://172.22.10.176:1443/api/v1 in vue.config.js)
-# VUE_APP_PACKETFENCE_API_URL=https://your-packetfence-url:1443/api/v1 
+# Required: Set PacketFence API URL (e.g., https://your-packetfence-ip:1443/api/v1)
+# No default is provided in vue.config.js anymore
+VUE_APP_PACKETFENCE_API_URL=https://your-packetfence-url:1443/api/v1 
 ```
 
 When running via Docker (using `server.js`), the following environment variables are needed (passed via `docker run -e` or `docker-compose`):
@@ -42,7 +43,7 @@ When running via Docker (using `server.js`), the following environment variables
 VUE_APP_PACKETFENCE_USERNAME=your-admin-username
 VUE_APP_PACKETFENCE_PASSWORD=your-admin-password
 
-# Optional: Override PacketFence API URL (Defaults to https://172.22.10.176:1443/api/v1 in server.js)
+# Required: PacketFence API URL (No default is provided)
 VUE_APP_PACKETFENCE_API_URL=https://your-packetfence-url:1443/api/v1
 
 # Optional: Set to false if PacketFence uses a valid, trusted SSL certificate
@@ -64,14 +65,15 @@ PACKETFENCE_IGNORE_SSL=true
     docker run -d -p 8080:8080 \
       -e VUE_APP_PACKETFENCE_USERNAME="YOUR_PF_ADMIN_USERNAME" \
       -e VUE_APP_PACKETFENCE_PASSWORD="YOUR_PF_ADMIN_PASSWORD" \
+      -e VUE_APP_PACKETFENCE_API_URL="https://your-packetfence-url:1443/api/v1" \
       --name mckselfservice-app \
       --restart=unless-stopped \
       alastairtech/mckselfservice-app:latest
     ```
-    *   Replace `YOUR_PF_ADMIN_USERNAME` and `YOUR_PF_ADMIN_PASSWORD` with your actual PacketFence API credentials.
+    *   Replace `YOUR_PF_ADMIN_USERNAME`, `YOUR_PF_ADMIN_PASSWORD`, and the `VUE_APP_PACKETFENCE_API_URL` value with your actual PacketFence details.
     *   `-d` runs the container in detached mode.
     *   `-p 8080:8080` maps the host port 8080 to the container's port 8080.
-    *   You can optionally add `-e VUE_APP_PACKETFENCE_API_URL=...` or `-e PACKETFENCE_IGNORE_SSL=false` if needed.
+    *   You can optionally add `-e PACKETFENCE_IGNORE_SSL=false` if needed.
     *   `--restart=unless-stopped` ensures the container restarts automatically if it stops, unless manually stopped.
 
 3.  **Access the application:**

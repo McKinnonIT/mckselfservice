@@ -29,11 +29,16 @@ app.post('/api-internal/create-user', async (req, res) => {
   // Read PacketFence credentials from environment variables
   const pfApiUsername = process.env.VUE_APP_PACKETFENCE_USERNAME;
   const pfApiPassword = process.env.VUE_APP_PACKETFENCE_PASSWORD;
-  const pfApiBaseUrl = process.env.VUE_APP_PACKETFENCE_API_URL || 'https://172.22.10.176:1443/api/v1'; // Allow overriding PF URL
+  const pfApiBaseUrl = process.env.VUE_APP_PACKETFENCE_API_URL;
 
   if (!pfApiUsername || !pfApiPassword) {
     console.error('[Server API] FATAL: PacketFence credentials not found in environment variables.');
     return res.status(500).json({ success: false, message: 'Server configuration error: Missing PacketFence API credentials.' });
+  }
+  
+  if (!pfApiBaseUrl) {
+    console.error('[Server API] FATAL: PacketFence API URL (VUE_APP_PACKETFENCE_API_URL) not found in environment variables.');
+    return res.status(500).json({ success: false, message: 'Server configuration error: Missing PacketFence API URL.' });
   }
   
   // Agent to ignore self-signed certs (if needed, controlled by env var)
