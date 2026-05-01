@@ -30,10 +30,15 @@ module.exports = {
       // Middleware to parse JSON request bodies
       devServer.app.use(require('body-parser').json());
 
+      devServer.app.get('/api-internal/user-info', (req, res) => {
+        const email = req.headers['remote-email'] || 'user@example.com';
+        res.json({ email });
+      });
+
       // Restore the original endpoint name and full logic
       devServer.app.post('/api-internal/create-user', async (req, res) => {
-        const { username, password } = req.body; // Get desired new user creds from frontend
-        console.log('[Internal API] Received request to create user:', username);
+        const { username, password, email } = req.body; // Get desired new user creds from frontend
+        console.log('[Internal API] Received request to create user:', username, 'with email:', email);
         if (!username || !password) {
           return res.status(400).json({ success: false, message: 'Missing username or password' });
         }
@@ -91,7 +96,7 @@ module.exports = {
           console.log('[Internal API] Step 1: Creating user object...');
           const userPid = username;
           const createUserData = {
-            "email": `${userPid}@example.com`,
+            "email": email || `${userPid}@example.com`,
             "notes": "Created via McK Self-Service (Internal API)",
             "pid": userPid,
             "sponsor": pfApiUsername
@@ -108,7 +113,7 @@ module.exports = {
 
           // --- Step 2: Set Password & Attributes --- 
           console.log('[Internal API] Step 2: Setting password and attributes...');
-          const unregDate = moment().add(5, 'days').format('YYYY-MM-DD HH:mm:ss');
+          const unregDate = moment().add(365, 'days').format('YYYY-MM-DD HH:mm:ss');
           const passwordData = {
             "category": "2",
             "unregdate": unregDate,

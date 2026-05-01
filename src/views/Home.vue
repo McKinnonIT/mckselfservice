@@ -5,11 +5,19 @@
         <div class="card bg-secondary shadow border-0">
           <div class="card-header bg-transparent pb-5">
             <div class="text-center text-muted mb-4">
-              <h2>Self-Service User Generator</h2>
+              <h2>Staff Wifi Generator</h2>
             </div>
           </div>
           <div class="card-body px-lg-5 py-lg-5">
             <form>
+              <div class="form-group mb-3">
+                <div class="input-group input-group-alternative">
+                  <span class="input-group-text">
+                    <i class="fas fa-envelope" style="font-size: 1.2rem; color: #5e72e4;"></i>
+                  </span>
+                  <input class="form-control" placeholder="Email" type="email" v-model="email" disabled>
+                </div>
+              </div>
               <div class="form-group mb-3">
                 <div class="input-group input-group-alternative">
                   <span class="input-group-text">
@@ -48,15 +56,14 @@
                   class="btn btn-primary my-4" 
                   @click="generateAndCreateUser"
                   :disabled="loading">
-                  {{ loading ? 'Generating...' : 'Generate New User' }}
-                </button>
-              </div>
-            </form>
-            
-            <div v-if="createdUser" class="alert alert-success mt-4 text-center">
-              <p class="mb-2"><strong>User {{ username }} successfully created.</strong></p>
-              <p class="mb-2">You can now login to McKinnonSC_Guest WiFi.</p>
-              <p class="mb-0 text-muted">This user will expire on {{ expirationDate }}</p>
+                  {{ loading ? 'Generating...' : 'Generate Wifi Account' }}
+                  </button>
+                  </div>
+                  </form>
+
+                  <div v-if="createdUser" class="alert alert-success mt-4 text-center">
+                  <p class="mb-2"><strong>User {{ username }} successfully created.</strong></p>
+                  <p class="mb-2">You can now login to Mckinnon SC WiFi.</p>              <p class="mb-0 text-muted">This user will expire on {{ expirationDate }}</p>
             </div>
             
             <div v-if="error" class="alert alert-danger mt-4">
@@ -74,7 +81,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { generateUsername } from '../api/username-generator';
 import dinopassApi from '../api/dinopass';
 // import packetfenceApi from '../api/packetfence'; // REMOVE Service import
@@ -84,12 +91,25 @@ import moment from 'moment';
 // --- Reactive State ---
 const username = ref('');
 const password = ref('');
+const email = ref('');
 const loading = ref(false);
 const createdUser = ref(null);
 const error = ref(null);
 const expirationDate = ref('');
 const copySuccess = ref(null);
 let copiedTimeout = null;
+
+// --- Lifecycle Hooks ---
+onMounted(async () => {
+  try {
+    const response = await axios.get('/api-internal/user-info');
+    if (response.data && response.data.email) {
+      email.value = response.data.email;
+    }
+  } catch (err) {
+    console.error('Error fetching user info:', err);
+  }
+});
 
 // --- Methods ---
 const generateAndCreateUser = async () => {
@@ -123,13 +143,14 @@ const generateAndCreateUser = async () => {
       // Use axios directly, like the test page
       const response = await axios.post('/api-internal/create-user', { 
           username: username.value, 
-          password: password.value 
+          password: password.value,
+          email: email.value
       }); 
       console.log('Internal API response received by Home.vue:', response.data);
 
       if (response.data && response.data.success) {
         createdUser.value = { username: username.value };
-        expirationDate.value = moment().add(5, 'days').format('MMMM Do YYYY, h:mm a');
+        expirationDate.value = moment().add(365, 'days').format('MMMM Do YYYY, h:mm a');
         error.value = null;
       } else {
         // Error message might be in response.data.message

@@ -16,10 +16,16 @@ app.use(bodyParser.json());
 // Serve static files from the Vue build output directory
 app.use(express.static(path.join(__dirname, 'dist')));
 
+// --- API Endpoints ---
+app.get('/api-internal/user-info', (req, res) => {
+  const email = req.headers['remote-email'] || 'user@example.com';
+  res.json({ email });
+});
+
 // --- API Endpoint for User Creation ---
 app.post('/api-internal/create-user', async (req, res) => {
-  const { username, password } = req.body;
-  console.log('[Server API] Received request to create user:', username);
+  const { username, password, email } = req.body;
+  console.log('[Server API] Received request to create user:', username, 'with email:', email);
 
   if (!username || !password) {
     console.error('[Server API] Missing username or password.');
@@ -87,7 +93,7 @@ app.post('/api-internal/create-user', async (req, res) => {
     console.log('[Server API] Step 1: Creating user object...');
     const userPid = username;
     const createUserData = {
-      "email": `${userPid}@example.com`,
+      "email": email || `${userPid}@example.com`,
       "notes": "Created via McK Self-Service (Docker)",
       "pid": userPid,
       "sponsor": pfApiUsername 
@@ -97,7 +103,7 @@ app.post('/api-internal/create-user', async (req, res) => {
 
     // --- Step 2: Set Password & Attributes --- 
     console.log('[Server API] Step 2: Setting password and attributes...');
-    const unregDate = moment().add(5, 'days').format('YYYY-MM-DD HH:mm:ss');
+    const unregDate = moment().add(365, 'days').format('YYYY-MM-DD HH:mm:ss');
     const passwordData = {
       "category": "2",
       "unregdate": unregDate,
