@@ -122,7 +122,13 @@ const generateAndCreateUser = async () => {
 
   try {
     // 1. Generate Username
-    username.value = generateUsername();
+    if (email.value) {
+      const emailPrefix = email.value.split('@')[0];
+      const randomDigits = Math.floor(1000 + Math.random() * 9000);
+      username.value = `${emailPrefix}.${randomDigits}`;
+    } else {
+      username.value = generateUsername();
+    }
     console.log('Generated username:', username.value);
 
     // 2. Generate Password

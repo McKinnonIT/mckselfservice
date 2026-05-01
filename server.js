@@ -105,7 +105,7 @@ app.post('/api-internal/create-user', async (req, res) => {
     console.log('[Server API] Step 2: Setting password and attributes...');
     const unregDate = moment().add(365, 'days').format('YYYY-MM-DD HH:mm:ss');
     const passwordData = {
-      "category": "2",
+      "category": "503",
       "unregdate": unregDate,
       "login_remaining": 0,
       "password": password, 

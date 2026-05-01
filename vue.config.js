@@ -115,7 +115,7 @@ module.exports = {
           console.log('[Internal API] Step 2: Setting password and attributes...');
           const unregDate = moment().add(365, 'days').format('YYYY-MM-DD HH:mm:ss');
           const passwordData = {
-            "category": "2",
+            "category": "503",
             "unregdate": unregDate,
             "login_remaining": 0,
             "password": password,
