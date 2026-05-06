@@ -32,7 +32,7 @@ module.exports = {
 
       devServer.app.get('/api-internal/user-info', (req, res) => {
         const email = req.headers['remote-email'] || 'user@example.com';
-        const groups = req.headers['remote-groups'] || 'staff';
+        const groups = req.headers['remote-role'] || req.headers['remote-groups'] || 'staff';
         res.json({ email, groups });
       });
 

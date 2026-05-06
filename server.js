@@ -20,7 +20,8 @@ app.use(express.static(path.join(__dirname, 'dist')));
 app.get('/api-internal/user-info', (req, res) => {
   console.log('[Server API] User Info Headers:', JSON.stringify(req.headers, null, 2));
   const email = req.headers['remote-email'] || 'user@example.com';
-  const groups = req.headers['remote-groups'] || 'staff';
+  // Pangolin seems to use Remote-Role, but we'll support Remote-Groups as a fallback
+  const groups = req.headers['remote-role'] || req.headers['remote-groups'] || 'staff';
   res.json({ email, groups });
 });
 
