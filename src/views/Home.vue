@@ -60,6 +60,28 @@
                   </button>
                 </div>
               </div>
+              <div v-if="customMode" class="row">
+                <div class="col-md-6">
+                  <div class="form-group mb-3">
+                    <label class="form-control-label text-muted small">PacketFence Category</label>
+                    <select class="form-control form-control-alternative" v-model="selectedCategory">
+                      <option value="503">Staff BYOD (503)</option>
+                      <option value="530">Guest Wifi (530)</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group mb-3">
+                    <label class="form-control-label text-muted small">Account Expiry</label>
+                    <select class="form-control form-control-alternative" v-model="selectedExpiry">
+                      <option value="1w">1 Week</option>
+                      <option value="1m">1 Month</option>
+                      <option value="1y">1 Year</option>
+                      <option value="3y">3 Years</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
               <div class="text-center">
                 <button 
                   type="submit" 
@@ -108,6 +130,8 @@ const error = ref(null);
 const expirationDate = ref('');
 const copySuccess = ref(null);
 const customMode = ref(false);
+const selectedCategory = ref('503');
+const selectedExpiry = ref('1y');
 let copiedTimeout = null;
 
 // --- Computed ---
@@ -151,7 +175,9 @@ const createUser = async () => {
     const response = await axios.post('/api-internal/create-user', { 
         username: username.value, 
         password: password.value,
-        email: email.value
+        email: email.value,
+        category: selectedCategory.value,
+        expiry: selectedExpiry.value
     }); 
 
     if (response.data && response.data.success) {

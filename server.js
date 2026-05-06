@@ -27,8 +27,9 @@ app.get('/api-internal/user-info', (req, res) => {
 
 // --- API Endpoint for User Creation ---
 app.post('/api-internal/create-user', async (req, res) => {
-  const { username, password, email } = req.body;
+  const { username, password, email, category, expiry } = req.body;
   console.log('[Server API] Received request to create user:', username, 'with email:', email);
+  console.log('[Server API] Custom options - Category:', category, 'Expiry:', expiry);
 
   if (!username || !password) {
     console.error('[Server API] Missing username or password.');
@@ -106,9 +107,20 @@ app.post('/api-internal/create-user', async (req, res) => {
 
     // --- Step 2: Set Password & Attributes --- 
     console.log('[Server API] Step 2: Setting password and attributes...');
-    const unregDate = moment().add(365, 'days').format('YYYY-MM-DD HH:mm:ss');
+    
+    // Handle dynamic expiry
+    let duration = 365;
+    let unit = 'days';
+    if (expiry) {
+      if (expiry === '1w') { duration = 7; unit = 'days'; }
+      else if (expiry === '1m') { duration = 1; unit = 'months'; }
+      else if (expiry === '1y') { duration = 1; unit = 'years'; }
+      else if (expiry === '3y') { duration = 3; unit = 'years'; }
+    }
+    const unregDate = moment().add(duration, unit).format('YYYY-MM-DD HH:mm:ss');
+    
     const passwordData = {
-      "category": "503",
+      "category": category || "503",
       "unregdate": unregDate,
       "login_remaining": 0,
       "password": password, 
