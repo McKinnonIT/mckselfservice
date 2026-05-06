@@ -19,7 +19,8 @@ app.use(express.static(path.join(__dirname, 'dist')));
 // --- API Endpoints ---
 app.get('/api-internal/user-info', (req, res) => {
   const email = req.headers['remote-email'] || 'user@example.com';
-  res.json({ email });
+  const groups = req.headers['remote-groups'] || 'staff';
+  res.json({ email, groups });
 });
 
 // --- API Endpoint for User Creation ---

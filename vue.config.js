@@ -32,7 +32,8 @@ module.exports = {
 
       devServer.app.get('/api-internal/user-info', (req, res) => {
         const email = req.headers['remote-email'] || 'user@example.com';
-        res.json({ email });
+        const groups = req.headers['remote-groups'] || 'staff';
+        res.json({ email, groups });
       });
 
       // Restore the original endpoint name and full logic
