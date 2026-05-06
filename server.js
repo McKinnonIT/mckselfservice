@@ -18,6 +18,7 @@ app.use(express.static(path.join(__dirname, 'dist')));
 
 // --- API Endpoints ---
 app.get('/api-internal/user-info', (req, res) => {
+  console.log('[Server API] User Info Headers:', JSON.stringify(req.headers, null, 2));
   const email = req.headers['remote-email'] || 'user@example.com';
   const groups = req.headers['remote-groups'] || 'staff';
   res.json({ email, groups });
