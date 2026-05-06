@@ -33,7 +33,7 @@
                   <span class="input-group-text">
                     <i class="fas fa-user" style="font-size: 1.2rem; color: #5e72e4;"></i>
                   </span>
-                  <input class="form-control" placeholder="Username" type="text" v-model="username" :disabled="!customMode">
+                  <input class="form-control" placeholder="Username" type="text" v-model="username" disabled>
                   <button 
                     type="button" 
                     class="btn btn-outline-primary copy-btn" 
@@ -49,7 +49,7 @@
                   <span class="input-group-text">
                     <i class="fas fa-key" style="font-size: 1.2rem; color: #5e72e4;"></i>
                   </span>
-                  <input class="form-control" placeholder="Password" type="text" v-model="password" :disabled="!customMode">
+                  <input class="form-control" placeholder="Password" type="text" v-model="password" disabled>
                   <button 
                     type="button" 
                     class="btn btn-outline-primary copy-btn" 
@@ -154,47 +154,15 @@ onMounted(async () => {
 
 // --- Methods ---
 const handleFormSubmit = async () => {
-  if (customMode.value) {
-    await createUser();
-  } else {
-    await generateAndCreateUser();
-  }
-};
-
-const createUser = async () => {
-  if (!username.value || !password.value || !email.value) {
-    error.value = 'Please fill in all fields.';
-    return;
-  }
-
-  loading.value = true;
-  error.value = null;
-  createdUser.value = null;
-
-  try {
-    const response = await axios.post('/api-internal/create-user', { 
-        username: username.value, 
-        password: password.value,
-        email: email.value,
-        category: selectedCategory.value,
-        expiry: selectedExpiry.value
-    }); 
-
-    if (response.data && response.data.success) {
-      createdUser.value = { username: username.value };
-      expirationDate.value = moment().add(365, 'days').format('MMMM Do YYYY, h:mm a');
-    } else {
-      throw new Error(response.data?.message || 'Internal API reported failure.');
-    }
-  } catch (err) {
-    console.error('Error calling internal API:', err);
-    error.value = err.response?.data?.message || err.message || 'An unexpected error occurred.';
-  } finally {
-    loading.value = false;
-  }
+  await generateAndCreateUser();
 };
 
 const generateAndCreateUser = async () => {
+  if (customMode.value && !email.value) {
+    error.value = 'Please enter an email address.';
+    return;
+  }
+
   loading.value = true;
   error.value = null;
   createdUser.value = null;
@@ -224,12 +192,24 @@ const generateAndCreateUser = async () => {
     const response = await axios.post('/api-internal/create-user', { 
         username: username.value, 
         password: password.value,
-        email: email.value
+        email: email.value,
+        category: customMode.value ? selectedCategory.value : '503',
+        expiry: customMode.value ? selectedExpiry.value : '1y'
     }); 
 
     if (response.data && response.data.success) {
       createdUser.value = { username: username.value };
-      expirationDate.value = moment().add(365, 'days').format('MMMM Do YYYY, h:mm a');
+      
+      // Calculate display expiration date based on selection
+      let duration = 365;
+      let unit = 'days';
+      if (customMode.value) {
+        if (selectedExpiry.value === '1w') { duration = 7; unit = 'days'; }
+        else if (selectedExpiry.value === '1m') { duration = 1; unit = 'months'; }
+        else if (selectedExpiry.value === '1y') { duration = 1; unit = 'years'; }
+        else if (selectedExpiry.value === '3y') { duration = 3; unit = 'years'; }
+      }
+      expirationDate.value = moment().add(duration, unit).format('MMMM Do YYYY, h:mm a');
     } else {
       throw new Error(response.data?.message || 'Internal API reported failure.');
     }
