@@ -122,6 +122,12 @@
             <div v-if="copySuccess" class="alert alert-info mt-4 copy-alert">
               <p class="mb-0">{{ copySuccess }}</p>
             </div>
+
+            <div class="alert alert-warning border-0 mt-5 mb-0 text-center">
+              <p class="mb-0 text-sm">
+                If you need assistance please see a campus IT Support Office or email help@mckinnonsc.vic.edu.au
+              </p>
+            </div>
           </div>
         </div>
       </div>
