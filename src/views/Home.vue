@@ -1,17 +1,17 @@
 <template>
   <div class="container">
-    <div v-if="isAdmin" class="admin-controls">
-      <button 
-        type="button" 
-        class="btn btn-sm" 
-        :class="customMode ? 'btn-warning' : 'btn-outline-warning'"
-        @click="customMode = !customMode">
-        <i class="fas" :class="customMode ? 'fa-lock-open' : 'fa-lock'"></i>
-        {{ customMode ? 'Custom Login Active' : 'Enable Custom Login' }}
-      </button>
-    </div>
     <div class="row justify-content-center">
       <div class="col-lg-10 col-md-12">
+        <div v-if="isAdmin" class="text-center mb-3">
+          <button 
+            type="button" 
+            class="btn btn-sm" 
+            :class="customMode ? 'btn-warning' : 'btn-outline-warning'"
+            @click="customMode = !customMode">
+            <i class="fas" :class="customMode ? 'fa-lock-open' : 'fa-lock'"></i>
+            {{ customMode ? 'Custom Login Active' : 'Enable Custom Login' }}
+          </button>
+        </div>
         <div class="card bg-secondary shadow border-0">
           <div class="card-header bg-transparent pb-5">
             <div class="text-center text-muted mb-4">
@@ -224,9 +224,6 @@
             </div>
           </div>
         </div>
-        <div class="modal-footer border-0">
-          <button type="button" class="btn btn-secondary" @click="showHelpModal = false; selectedPlatform = null">Close</button>
-        </div>
       </div>
     </div>
   </div>
@@ -385,13 +382,6 @@ const copyToClipboard = (text) => {
   align-items: center;
   justify-content: center;
   position: relative;
-}
-
-.admin-controls {
-  position: absolute;
-  top: 20px;
-  left: 20px;
-  z-index: 100;
 }
 
 .row {
