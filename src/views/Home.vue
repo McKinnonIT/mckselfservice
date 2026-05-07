@@ -305,14 +305,14 @@ const generateAndCreateUser = async () => {
     if (email.value) {
       const emailPrefix = email.value.split('@')[0];
       const randomDigits = Math.floor(1000 + Math.random() * 9000);
-      username.value = `${emailPrefix}.${randomDigits}`;
+      username.value = `${emailPrefix}${randomDigits}`;
     } else {
       username.value = generateUsername();
     }
 
     // 2. Generate Password
     try {
-      password.value = await dinopassApi.getStrongPassword();
+      password.value = await dinopassApi.getSimplePassword();
     } catch (dinoError) {
       console.error('DinoPass API error:', dinoError);
       throw new Error('Failed to generate password from DinoPass. Please try again.');
