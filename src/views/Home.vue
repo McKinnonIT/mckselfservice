@@ -187,7 +187,13 @@
               </div>
               <div class="d-flex mb-3">
                 <div class="step-number me-3">2</div>
-                <p class="mb-0">When prompted, enter the <strong>Username</strong> and <strong>Password</strong> generated above.</p>
+                <div>
+                   <p class="mb-1">When prompted, enter your credentials:</p>
+                   <ul class="small ps-3 mb-0">
+                     <li>Username: <strong>{{ username }}</strong></li>
+                     <li>Password: <strong>{{ password }}</strong></li>
+                   </ul>
+                </div>
               </div>
               <div v-if="selectedPlatform === 'ios' || selectedPlatform === 'mac'" class="d-flex mb-3">
                 <div class="step-number me-3">3</div>
