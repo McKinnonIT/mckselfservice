@@ -89,10 +89,19 @@
                   type="submit" 
                   class="btn btn-primary my-4" 
                   :disabled="loading">
-                  {{ loading ? 'Processing...' : (customMode ? 'Create Custom Account' : 'Generate Wifi Account') }}
+                  {{ loading ? 'Processing...' : (createdUser ? 'Generate Another WiFi Account' : (customMode ? 'Create Custom Account' : 'Generate WiFi Account')) }}
                 </button>
               </div>
             </form>
+
+            <div v-if="createdUser" class="text-center mt-2">
+              <button 
+                type="button" 
+                class="btn btn-outline-info" 
+                @click="showHelpModal = true">
+                <i class="fas fa-question-circle"></i> Help Me Connect
+              </button>
+            </div>
 
             <div v-if="createdUser" class="alert alert-success mt-4 text-center">
               <p class="mb-2"><strong>User {{ createdUser.username }} successfully created.</strong></p>
@@ -108,6 +117,102 @@
               <p class="mb-0">{{ copySuccess }}</p>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Help Connection Modal -->
+  <div v-if="showHelpModal" class="modal-backdrop fade show"></div>
+  <div v-if="showHelpModal" class="modal fade show" style="display: block;" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content shadow">
+        <div class="modal-header d-flex justify-content-between align-items-center">
+          <h5 class="modal-title">How to Connect</h5>
+          <button type="button" class="btn-close border-0 bg-transparent" @click="showHelpModal = false; selectedPlatform = null" aria-label="Close">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="modal-body p-0">
+          <div v-if="!selectedPlatform">
+            <p class="px-3 pt-3 text-muted small">Select your device to see connection instructions:</p>
+            <div class="list-group list-group-flush">
+              <button type="button" class="list-group-item list-group-item-action d-flex align-items-center py-3 border-0" @click="selectedPlatform = 'windows'">
+                <i class="fab fa-windows fa-2x me-3 text-primary" style="width: 40px; text-align: center;"></i>
+                <div>
+                  <h6 class="mb-0">Windows</h6>
+                  <small class="text-muted">Laptops and Desktops</small>
+                </div>
+                <i class="fas fa-chevron-right ms-auto text-muted"></i>
+              </button>
+              <button type="button" class="list-group-item list-group-item-action d-flex align-items-center py-3 border-0" @click="selectedPlatform = 'mac'">
+                <i class="fab fa-apple fa-2x me-3 text-dark" style="width: 40px; text-align: center;"></i>
+                <div>
+                  <h6 class="mb-0">Mac</h6>
+                  <small class="text-muted">MacBook and iMac</small>
+                </div>
+                <i class="fas fa-chevron-right ms-auto text-muted"></i>
+              </button>
+              <button type="button" class="list-group-item list-group-item-action d-flex align-items-center py-3 border-0" @click="selectedPlatform = 'ios'">
+                <i class="fas fa-mobile-alt fa-2x me-3 text-info" style="width: 40px; text-align: center;"></i>
+                <div>
+                  <h6 class="mb-0">iPhone / iPad</h6>
+                  <small class="text-muted">iOS Devices</small>
+                </div>
+                <i class="fas fa-chevron-right ms-auto text-muted"></i>
+              </button>
+              <button type="button" class="list-group-item list-group-item-action d-flex align-items-center py-3 border-0" @click="selectedPlatform = 'android'">
+                <i class="fab fa-android fa-2x me-3 text-success" style="width: 40px; text-align: center;"></i>
+                <div>
+                  <h6 class="mb-0">Android</h6>
+                  <small class="text-muted">Phones and Tablets</small>
+                </div>
+                <i class="fas fa-chevron-right ms-auto text-muted"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Platform Specific Content -->
+          <div v-else class="p-4 bg-white rounded">
+            <div class="d-flex align-items-center mb-4">
+              <button class="btn btn-sm btn-link p-0 me-3 text-decoration-none" @click="selectedPlatform = null">
+                <i class="fas fa-arrow-left"></i> Back
+              </button>
+              <h5 class="mb-0">Instructions for {{ platformName }}</h5>
+            </div>
+            <div class="instruction-steps">
+              <div class="d-flex mb-3">
+                <div class="step-number me-3">1</div>
+                <p class="mb-0">Connect to the <strong>McKinnon SC</strong> WiFi network.</p>
+              </div>
+              <div class="d-flex mb-3">
+                <div class="step-number me-3">2</div>
+                <p class="mb-0">When prompted, enter the <strong>Username</strong> and <strong>Password</strong> generated above.</p>
+              </div>
+              <div v-if="selectedPlatform === 'ios' || selectedPlatform === 'mac'" class="d-flex mb-3">
+                <div class="step-number me-3">3</div>
+                <p class="mb-0">If prompted to trust a certificate, click <strong>Trust</strong> or <strong>Accept</strong>.</p>
+              </div>
+              <div v-if="selectedPlatform === 'android'" class="d-flex mb-3">
+                <div class="step-number me-3">3</div>
+                <div>
+                   <p class="mb-1">Configure the following settings:</p>
+                   <ul class="small ps-3 mb-0">
+                     <li>EAP method: <strong>PEAP</strong></li>
+                     <li>Phase 2 authentication: <strong>MSCHAPV2</strong></li>
+                     <li>CA certificate: <strong>Don't validate</strong></li>
+                   </ul>
+                </div>
+              </div>
+              <div class="d-flex">
+                <div class="step-number me-3">{{ (selectedPlatform === 'ios' || selectedPlatform === 'mac' || selectedPlatform === 'android') ? 4 : 3 }}</div>
+                <p class="mb-0">Wait for your device to obtain an IP address and connect.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer border-0">
+          <button type="button" class="btn btn-secondary" @click="showHelpModal = false; selectedPlatform = null">Close</button>
         </div>
       </div>
     </div>
@@ -134,11 +239,23 @@ const copySuccess = ref(null);
 const customMode = ref(false);
 const selectedCategory = ref('503');
 const selectedExpiry = ref('1y');
+const showHelpModal = ref(false);
+const selectedPlatform = ref(null);
 let copiedTimeout = null;
 
 // --- Computed ---
 const isAdmin = computed(() => {
   return groups.value.split(',').map(g => g.trim().toLowerCase()).includes('admin');
+});
+
+const platformName = computed(() => {
+  const names = {
+    windows: 'Windows',
+    mac: 'Mac',
+    ios: 'iPhone / iPad',
+    android: 'Android'
+  };
+  return names[selectedPlatform.value] || '';
 });
 
 // --- Lifecycle Hooks ---
@@ -363,5 +480,50 @@ h2 {
 @keyframes fadeOut {
   from { opacity: 1; }
   to { opacity: 0; }
+}
+
+.modal-backdrop {
+  z-index: 1040;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal {
+  z-index: 1050;
+}
+
+.modal-content {
+  border-radius: 1rem;
+  border: none;
+}
+
+.btn-close:hover {
+  opacity: 0.75;
+}
+
+.list-group-item {
+  transition: background-color 0.2s;
+  cursor: pointer;
+}
+
+.list-group-item:hover {
+  background-color: #f8f9fe !important;
+}
+
+.step-number {
+  width: 24px;
+  height: 24px;
+  background-color: #5e72e4;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: bold;
+  flex-shrink: 0;
+}
+
+.instruction-steps p {
+  line-height: 1.5;
 }
 </style> 
