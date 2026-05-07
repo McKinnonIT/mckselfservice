@@ -20,7 +20,7 @@
             <div class="alert alert-info border-0 mb-0 d-flex align-items-center justify-content-center mx-lg-5">
               <i class="fas fa-info-circle me-3" style="font-size: 1.2rem;"></i>
               <p class="mb-0 text-sm">
-                Accounts are one time use for one device. Do not generate accounts for other staff members.
+                Accounts are one time use for one device. Do not generate WiFi accounts for other staff members, students or guests.
               </p>
             </div>
           </div>
