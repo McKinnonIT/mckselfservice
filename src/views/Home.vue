@@ -197,10 +197,17 @@
                 <div class="step-number me-3">3</div>
                 <div>
                    <p class="mb-1">Configure the following settings:</p>
-                   <ul class="small ps-3 mb-0">
+                   <ul class="small ps-3 mb-2">
                      <li>EAP method: <strong>PEAP</strong></li>
-                     <li>Phase 2 authentication: <strong>MSCHAPV2</strong></li>
-                     <li>CA certificate: <strong>Don't validate</strong></li>
+                     <li>Phase 2 authentication: <strong>MSCHAPv2</strong></li>
+                     <li>Anonymous Identity: <strong>{{ username }}</strong></li>
+                     <li>Identity: <strong>{{ username }}</strong></li>
+                     <li>Password: <strong>{{ password }}</strong></li>
+                   </ul>
+                   <p class="mb-1 small text-dark font-weight-bold">CA Certificate:</p>
+                   <ul class="small ps-3 mb-0">
+                     <li>Android 11-14: <strong>Don't validate</strong></li>
+                     <li>Android 15+: <strong>Trust on First Use</strong></li>
                    </ul>
                 </div>
               </div>
