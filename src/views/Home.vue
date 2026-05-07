@@ -15,7 +15,7 @@
         <div class="card bg-secondary shadow border-0">
           <div class="card-header bg-transparent pb-5">
             <div class="text-center text-muted mb-4">
-              <h2>Staff Wifi Generator</h2>
+              <h2>McKinnon SC WiFi Generator</h2>
             </div>
           </div>
           <div class="card-body px-lg-5 py-lg-5">
@@ -66,7 +66,7 @@
                     <label class="form-control-label text-muted small">PacketFence Category</label>
                     <select class="form-control form-control-alternative" v-model="selectedCategory">
                       <option value="503">Staff BYOD (503)</option>
-                      <option value="530">Guest Wifi (530)</option>
+                      <option value="530">Guest WiFi (530)</option>
                     </select>
                   </div>
                 </div>
@@ -75,7 +75,9 @@
                     <label class="form-control-label text-muted small">Account Expiry</label>
                     <select class="form-control form-control-alternative" v-model="selectedExpiry">
                       <option value="1w">1 Week</option>
+                      <option value="2w">2 Weeks</option>
                       <option value="1m">1 Month</option>
+                      <option value="6m">6 Months</option>
                       <option value="1y">1 Year</option>
                       <option value="3y">3 Years</option>
                     </select>
@@ -205,7 +207,9 @@ const generateAndCreateUser = async () => {
       let unit = 'days';
       if (customMode.value) {
         if (selectedExpiry.value === '1w') { duration = 7; unit = 'days'; }
+        else if (selectedExpiry.value === '2w') { duration = 14; unit = 'days'; }
         else if (selectedExpiry.value === '1m') { duration = 1; unit = 'months'; }
+        else if (selectedExpiry.value === '6m') { duration = 6; unit = 'months'; }
         else if (selectedExpiry.value === '1y') { duration = 1; unit = 'years'; }
         else if (selectedExpiry.value === '3y') { duration = 3; unit = 'years'; }
       }

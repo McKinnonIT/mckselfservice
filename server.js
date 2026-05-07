@@ -113,7 +113,9 @@ app.post('/api-internal/create-user', async (req, res) => {
     let unit = 'days';
     if (expiry) {
       if (expiry === '1w') { duration = 7; unit = 'days'; }
+      else if (expiry === '2w') { duration = 14; unit = 'days'; }
       else if (expiry === '1m') { duration = 1; unit = 'months'; }
+      else if (expiry === '6m') { duration = 6; unit = 'months'; }
       else if (expiry === '1y') { duration = 1; unit = 'years'; }
       else if (expiry === '3y') { duration = 3; unit = 'years'; }
     }
