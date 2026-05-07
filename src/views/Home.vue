@@ -65,8 +65,8 @@
                   <div class="form-group mb-3">
                     <label class="form-control-label text-muted small">PacketFence Category</label>
                     <select class="form-control form-control-alternative" v-model="selectedCategory">
-                      <option value="503">Staff BYOD (503)</option>
-                      <option value="530">Guest WiFi (530)</option>
+                      <option value="503">Staff BYOD</option>
+                      <option value="530">Guest WiFi</option>
                     </select>
                   </div>
                 </div>
