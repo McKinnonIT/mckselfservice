@@ -129,9 +129,7 @@
       <div class="modal-content shadow">
         <div class="modal-header d-flex justify-content-between align-items-center">
           <h5 class="modal-title">How to Connect</h5>
-          <button type="button" class="btn-close border-0 bg-transparent" @click="showHelpModal = false; selectedPlatform = null" aria-label="Close">
-            <i class="fas fa-times"></i>
-          </button>
+          <button type="button" class="btn-close" @click="showHelpModal = false; selectedPlatform = null" aria-label="Close"></button>
         </div>
         <div class="modal-body p-0">
           <div v-if="!selectedPlatform">
@@ -223,6 +221,9 @@
               </div>
             </div>
           </div>
+        </div>
+        <div class="modal-footer border-0">
+          <button type="button" class="btn btn-secondary" @click="showHelpModal = false; selectedPlatform = null">Close</button>
         </div>
       </div>
     </div>
