@@ -17,6 +17,12 @@
             <div class="text-center text-muted mb-4">
               <h2>McKinnon SC WiFi Generator</h2>
             </div>
+            <div class="alert alert-info border-0 mb-0 d-flex align-items-center justify-content-center mx-lg-5">
+              <i class="fas fa-info-circle me-3" style="font-size: 1.2rem;"></i>
+              <p class="mb-0 text-sm">
+                Accounts are one time use for one device. Do not generate accounts for other staff members.
+              </p>
+            </div>
           </div>
           <div class="card-body px-lg-5 py-lg-5">
             <form @submit.prevent="handleFormSubmit">
