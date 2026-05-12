@@ -20,7 +20,7 @@
             <div class="alert alert-info border-0 mb-0 d-flex align-items-center justify-content-center mx-lg-5">
               <i class="fas fa-info-circle me-3" style="font-size: 1.2rem;"></i>
               <p class="mb-0 text-sm">
-                Accounts are one time use for one device. Do not generate WiFi accounts for other staff members, students or guests.
+                Accounts are one time use for one device.
               </p>
             </div>
           </div>
@@ -90,11 +90,19 @@
                   </div>
                 </div>
               </div>
+
+              <div v-if="!customMode" class="form-check mt-4 text-center">
+                <input class="form-check-input" type="checkbox" v-model="agreedToTerms" id="termsCheckbox" style="float: none; display: inline-block; vertical-align: middle; margin-top: 0; width: 1.5rem; height: 1.5rem; cursor: pointer;">
+                <label class="form-check-label text-dark ms-2" for="termsCheckbox" style="vertical-align: middle; font-size: 1.25rem; cursor: pointer;">
+                  I agree not to share these WiFi credentials with any other staff members, students or guests.
+                </label>
+              </div>
+
               <div class="text-center">
                 <button 
                   type="submit" 
                   class="btn btn-primary my-4" 
-                  :disabled="loading">
+                  :disabled="loading || (!customMode && !agreedToTerms)">
                   {{ loading ? 'Processing...' : (createdUser ? 'Generate Another WiFi Account' : (customMode ? 'Create Custom Account' : 'Generate WiFi Account')) }}
                 </button>
               </div>
@@ -260,6 +268,7 @@ const error = ref(null);
 const expirationDate = ref('');
 const copySuccess = ref(null);
 const customMode = ref(false);
+const agreedToTerms = ref(false);
 const selectedCategory = ref('503');
 const selectedExpiry = ref('1y');
 const showHelpModal = ref(false);
@@ -341,6 +350,7 @@ const generateAndCreateUser = async () => {
 
     if (response.data && response.data.success) {
       createdUser.value = { username: username.value };
+      agreedToTerms.value = false; // Reset checkbox for next generation
       
       // Calculate display expiration date based on selection
       let duration = 365;
