@@ -16,10 +16,20 @@ app.use(bodyParser.json());
 // Serve static files from the Vue build output directory
 app.use(express.static(path.join(__dirname, 'dist')));
 
+// --- API Endpoints ---
+app.get('/api-internal/user-info', (req, res) => {
+  console.log('[Server API] User Info Headers:', JSON.stringify(req.headers, null, 2));
+  const email = req.headers['remote-email'] || 'user@example.com';
+  // Pangolin seems to use Remote-Role, but we'll support Remote-Groups as a fallback
+  const groups = req.headers['remote-role'] || req.headers['remote-groups'] || 'staff';
+  res.json({ email, groups });
+});
+
 // --- API Endpoint for User Creation ---
 app.post('/api-internal/create-user', async (req, res) => {
-  const { username, password } = req.body;
-  console.log('[Server API] Received request to create user:', username);
+  const { username, password, email, category, expiry } = req.body;
+  console.log('[Server API] Received request to create user:', username, 'with email:', email);
+  console.log('[Server API] Custom options - Category:', category, 'Expiry:', expiry);
 
   if (!username || !password) {
     console.error('[Server API] Missing username or password.');
@@ -87,7 +97,7 @@ app.post('/api-internal/create-user', async (req, res) => {
     console.log('[Server API] Step 1: Creating user object...');
     const userPid = username;
     const createUserData = {
-      "email": `${userPid}@example.com`,
+      "email": email || `${userPid}@example.com`,
       "notes": "Created via McK Self-Service (Docker)",
       "pid": userPid,
       "sponsor": pfApiUsername 
@@ -97,9 +107,22 @@ app.post('/api-internal/create-user', async (req, res) => {
 
     // --- Step 2: Set Password & Attributes --- 
     console.log('[Server API] Step 2: Setting password and attributes...');
-    const unregDate = moment().add(5, 'days').format('YYYY-MM-DD HH:mm:ss');
+    
+    // Handle dynamic expiry
+    let duration = 365;
+    let unit = 'days';
+    if (expiry) {
+      if (expiry === '1w') { duration = 7; unit = 'days'; }
+      else if (expiry === '2w') { duration = 14; unit = 'days'; }
+      else if (expiry === '1m') { duration = 1; unit = 'months'; }
+      else if (expiry === '6m') { duration = 6; unit = 'months'; }
+      else if (expiry === '1y') { duration = 1; unit = 'years'; }
+      else if (expiry === '3y') { duration = 3; unit = 'years'; }
+    }
+    const unregDate = moment().add(duration, unit).format('YYYY-MM-DD HH:mm:ss');
+    
     const passwordData = {
-      "category": "2",
+      "category": category || "503",
       "unregdate": unregDate,
       "login_remaining": 0,
       "password": password, 
