@@ -1,0 +1,21 @@
+services:
+  app:
+    build: .
+    image: mckselfservice-app:latest
+    container_name: mckselfservice-app
+    restart: unless-stopped
+    # No ports: — the Newt tunnel is the only ingress.
+    expose:
+      - "8080"
+    env_file: .env
+
+  newt:
+    image: fosrl/newt:latest
+    container_name: mckselfservice-newt
+    restart: unless-stopped
+    environment:
+      NEWT_ID: ${NEWT_ID}
+      NEWT_SECRET: ${NEWT_SECRET}
+      PANGOLIN_ENDPOINT: ${PANGOLIN_ENDPOINT}
+    depends_on:
+      - app
