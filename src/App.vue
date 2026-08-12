@@ -1,15 +1,12 @@
 <template>
   <div id="app" class="bg-default">
-    <!-- Navigation can be minimal or removed if not needed -->
-    <!-- 
-    <div id="nav" class="mb-3">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/packetfence-test">PacketFence Test</router-link> 
-    </div>
-     -->
-    <router-view />
+    <Home />
   </div>
 </template>
+
+<script setup>
+import Home from './views/Home.vue'
+</script>
 
 <style>
 body {
@@ -38,4 +35,4 @@ body {
   width: 95%;
   margin: 0 auto;
 }
-</style> 
+</style>

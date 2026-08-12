@@ -1,80 +1,52 @@
 # McK Self-Service Portal
 
-This is a Vue.js application allowing guests to self-register for WiFi access by creating a temporary user account in PacketFence.
+Vue 3 SPA that lets staff self-register a WiFi account in PacketFence. `server.js`
+serves the built SPA and owns the PacketFence calls — PacketFence admin credentials
+never reach the browser.
 
-## Project setup
-```
+Identity comes from Pangolin's `Remote-Email` / `Remote-Role` headers, so the app
+has no login of its own and must not be exposed directly.
+
+## Setup
+
+```bash
 npm install
+cp .env.sample .env   # then fill it in
 ```
 
-### Compiles and hot-reloads for development
-```
-npm run serve
+## Development
+
+Two processes — the API and the dev server, which proxies `/api-internal` to it:
+
+```bash
+npm run dev:api   # server.js on :8080, reads .env
+npm run serve     # dev server on :8081 — open that one
 ```
 
-### Compiles and minifies for production
-```
-npm run build
-```
-
-### Lints and fixes files
-```
+```bash
+npm test          # expiry-date maths
 npm run lint
 ```
 
-## Environment Variables
+## Environment
 
-When running locally using `npm run serve`, create a `.env` file in the root directory with the following variables used by the development server's internal API (`vue.config.js`):
+See `.env.sample`. Required:
 
-```dotenv
-# Required PacketFence API credentials for the dev server
-VUE_APP_PACKETFENCE_USERNAME=your-admin-username
-VUE_APP_PACKETFENCE_PASSWORD=your-admin-password
+| Variable | Purpose |
+| --- | --- |
+| `VUE_APP_PACKETFENCE_USERNAME` | PacketFence API user |
+| `VUE_APP_PACKETFENCE_PASSWORD` | PacketFence API password |
+| `VUE_APP_PACKETFENCE_API_URL` | e.g. `https://packetfence:1443/api/v1` |
+| `NEWT_ID` / `NEWT_SECRET` / `PANGOLIN_ENDPOINT` | Newt tunnel (Pangolin → Sites → Add Site → Newt) |
 
-# Required: Set PacketFence API URL (e.g., https://your-packetfence-ip:1443/api/v1)
-# No default is provided in vue.config.js anymore
-VUE_APP_PACKETFENCE_API_URL=https://your-packetfence-url:1443/api/v1 
+Optional: `PACKETFENCE_IGNORE_SSL=true` for a self-signed or private-CA PacketFence
+certificate. The Dockerfile defaults it to `true`.
+
+## Deployment
+
+```bash
+docker compose up -d --build
 ```
 
-When running via Docker (using `server.js`), the following environment variables are needed (passed via `docker run -e` or `docker-compose`):
-
-```dotenv
-# Required PacketFence API credentials for the production server
-VUE_APP_PACKETFENCE_USERNAME=your-admin-username
-VUE_APP_PACKETFENCE_PASSWORD=your-admin-password
-
-# Required: PacketFence API URL (No default is provided)
-VUE_APP_PACKETFENCE_API_URL=https://your-packetfence-url:1443/api/v1
-
-# Optional: Set to false if PacketFence uses a valid, trusted SSL certificate
-PACKETFENCE_IGNORE_SSL=true 
-
-# Optional: Port for the Node.js server inside the container (Defaults to 8080)
-# PORT=8080
-```
-
-## Docker Usage
-
-1.  **Build the Docker image after cloning the repository:**
-    ```bash
-    docker build -t mckselfservice-app:latest .
-    ```
-
-2.  **Run the container:**
-    ```bash
-    docker run -d -p 8080:8080 \
-      -e VUE_APP_PACKETFENCE_USERNAME="YOUR_PF_ADMIN_USERNAME" \
-      -e VUE_APP_PACKETFENCE_PASSWORD="YOUR_PF_ADMIN_PASSWORD" \
-      -e VUE_APP_PACKETFENCE_API_URL="https://your-packetfence-url:1443/api/v1" \
-      --name mckselfservice-app \
-      --restart=unless-stopped \
-      alastairtech/mckselfservice-app:latest
-    ```
-    *   Replace `YOUR_PF_ADMIN_USERNAME`, `YOUR_PF_ADMIN_PASSWORD`, and the `VUE_APP_PACKETFENCE_API_URL` value with your actual PacketFence details.
-    *   `-d` runs the container in detached mode.
-    *   `-p 8080:8080` maps the host port 8080 to the container's port 8080.
-    *   You can optionally add `-e PACKETFENCE_IGNORE_SSL=false` if needed.
-    *   `--restart=unless-stopped` ensures the container restarts automatically if it stops, unless manually stopped.
-
-3.  **Access the application:**
-    Open your browser and navigate to `http://<your-docker-host-ip>:8080` (or `http://localhost:8080` if running locally). 
+The app container publishes no ports; the `newt` container tunnels it to Pangolin,
+which is the only ingress.
