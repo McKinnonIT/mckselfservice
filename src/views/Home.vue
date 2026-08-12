@@ -252,10 +252,10 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue';
-import { generateUsername } from '../api/username-generator';
-import dinopassApi from '../api/dinopass';
 import axios from 'axios';
-import moment from 'moment';
+
+// Fallback name pool, only reached if /api-internal/user-info gives us no email.
+const ANIMALS = 'koala wombat echidna platypus quokka possum dingo emu numbat bilby'.split(' ');
 
 // --- Reactive State ---
 const username = ref('');
@@ -328,12 +328,12 @@ const generateAndCreateUser = async () => {
       const randomDigits = Math.floor(1000 + Math.random() * 9000);
       username.value = `${emailPrefix}${randomDigits}`;
     } else {
-      username.value = generateUsername();
+      username.value = `guest-${ANIMALS[Math.floor(Math.random() * ANIMALS.length)]}`;
     }
 
     // 2. Generate Password
     try {
-      password.value = await dinopassApi.getSimplePassword();
+      password.value = (await axios.get('https://www.dinopass.com/password/simple')).data;
     } catch (dinoError) {
       console.error('DinoPass API error:', dinoError);
       throw new Error('Failed to generate password from DinoPass. Please try again.');
@@ -351,19 +351,9 @@ const generateAndCreateUser = async () => {
     if (response.data && response.data.success) {
       createdUser.value = { username: username.value };
       agreedToTerms.value = false; // Reset checkbox for next generation
-      
-      // Calculate display expiration date based on selection
-      let duration = 365;
-      let unit = 'days';
-      if (customMode.value) {
-        if (selectedExpiry.value === '1w') { duration = 7; unit = 'days'; }
-        else if (selectedExpiry.value === '2w') { duration = 14; unit = 'days'; }
-        else if (selectedExpiry.value === '1m') { duration = 1; unit = 'months'; }
-        else if (selectedExpiry.value === '6m') { duration = 6; unit = 'months'; }
-        else if (selectedExpiry.value === '1y') { duration = 1; unit = 'years'; }
-        else if (selectedExpiry.value === '3y') { duration = 3; unit = 'years'; }
-      }
-      expirationDate.value = moment().add(duration, unit).format('MMMM Do YYYY, h:mm a');
+      // The server owns the expiry maths; just render what it actually set.
+      expirationDate.value = new Date(response.data.expiresAt)
+        .toLocaleString('en-AU', { dateStyle: 'long', timeStyle: 'short' });
     } else {
       throw new Error(response.data?.message || 'Internal API reported failure.');
     }

@@ -5,8 +5,6 @@ services:
     container_name: mckselfservice-app
     restart: unless-stopped
     # No ports: — the Newt tunnel is the only ingress.
-    expose:
-      - "8080"
     env_file: .env
 
   newt:
