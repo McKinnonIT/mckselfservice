@@ -286,8 +286,9 @@ onMounted(async () => {
   try {
     const response = await axios.get('/api-internal/user-info');
     if (response.data) {
-      if (response.data.email) email.value = response.data.email;
       if (response.data.groups) groups.value = response.data.groups;
+      // Admins create accounts for other people, so leave their email blank.
+      if (response.data.email && !isAdmin.value) email.value = response.data.email;
     }
   } catch (err) {
     console.error('Error fetching user info:', err);
