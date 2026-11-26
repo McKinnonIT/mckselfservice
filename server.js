@@ -9,11 +9,14 @@ const PORT = 8080;
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'dist')));
 
+// Pangolin sends Remote-Role; Remote-Groups is a fallback.
+const rolesOf = (req) => req.headers['remote-role'] || req.headers['remote-groups'] || 'staff';
+const isAdmin = (req) => rolesOf(req).split(',').map(r => r.trim().toLowerCase()).includes('admin');
+
 app.get('/api-internal/user-info', (req, res) => {
   res.json({
     email: req.headers['remote-email'] || 'user@example.com',
-    // Pangolin sends Remote-Role; Remote-Groups is a fallback.
-    groups: req.headers['remote-role'] || req.headers['remote-groups'] || 'staff',
+    groups: rolesOf(req),
   });
 });
 
@@ -35,7 +38,9 @@ function expiryDate(code, from = new Date()) {
 const pfDate = (d) => d.toLocaleString('sv-SE');
 
 app.post('/api-internal/create-user', async (req, res) => {
-  const { username, password, email, category, expiry } = req.body;
+  const { username, password, email } = req.body;
+  // Only admins may choose category/expiry; everyone else gets the defaults below.
+  const { category, expiry } = isAdmin(req) ? req.body : {};
   if (!username || !password) {
     return res.status(400).json({ success: false, message: 'Missing username or password' });
   }

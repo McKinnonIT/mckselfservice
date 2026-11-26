@@ -24,7 +24,7 @@ npm run serve     # dev server on :8081 — open that one
 ```
 
 ```bash
-npm test          # expiry-date maths
+npm test          # expiry-date maths + admin-only category/expiry
 npm run lint
 ```
 

@@ -2,16 +2,6 @@
   <div class="container">
     <div class="row justify-content-center">
       <div class="col-lg-10 col-md-12">
-        <div v-if="isAdmin" class="text-center mb-3">
-          <button 
-            type="button" 
-            class="btn btn-sm" 
-            :class="customMode ? 'btn-warning' : 'btn-outline-warning'"
-            @click="customMode = !customMode">
-            <i class="fas" :class="customMode ? 'fa-lock-open' : 'fa-lock'"></i>
-            {{ customMode ? 'Custom Login Active' : 'Enable Custom Login' }}
-          </button>
-        </div>
         <div class="card bg-secondary shadow border-0">
           <div class="card-header bg-transparent pb-5">
             <div class="text-center text-muted mb-4">
@@ -267,7 +257,6 @@ const createdUser = ref(null);
 const error = ref(null);
 const expirationDate = ref('');
 const copySuccess = ref(null);
-const customMode = ref(false);
 const agreedToTerms = ref(false);
 const selectedCategory = ref('503');
 const selectedExpiry = ref('1y');
@@ -279,6 +268,8 @@ let copiedTimeout = null;
 const isAdmin = computed(() => {
   return groups.value.split(',').map(g => g.trim().toLowerCase()).includes('admin');
 });
+// Admins always get the custom login form.
+const customMode = isAdmin;
 
 const platformName = computed(() => {
   const names = {
