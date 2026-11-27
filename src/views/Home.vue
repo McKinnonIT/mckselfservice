@@ -1,240 +1,159 @@
 <template>
-  <div class="container">
-    <div class="row justify-content-center">
-      <div class="col-lg-10 col-md-12">
-        <div class="card bg-secondary shadow border-0">
-          <div class="card-header bg-transparent pb-5">
-            <div class="text-center text-muted mb-4">
-              <h2>McKinnon SC WiFi Generator</h2>
-            </div>
-            <div class="alert alert-info border-0 mb-0 d-flex align-items-center justify-content-center mx-lg-5">
-              <i class="fas fa-info-circle me-3" style="font-size: 1.2rem;"></i>
-              <p class="mb-0 text-sm">
-                Accounts are one time use for one device.
-              </p>
-            </div>
-          </div>
-          <div class="card-body px-lg-5 py-lg-5">
-            <form @submit.prevent="handleFormSubmit">
-              <div class="form-group mb-3">
-                <div class="input-group input-group-alternative">
-                  <span class="input-group-text">
-                    <i class="fas fa-envelope" style="font-size: 1.2rem; color: #5e72e4;"></i>
-                  </span>
-                  <input class="form-control" placeholder="Email" type="email" v-model="email" :disabled="!customMode">
-                </div>
-              </div>
-              <div class="form-group mb-3">
-                <div class="input-group input-group-alternative">
-                  <span class="input-group-text">
-                    <i class="fas fa-user" style="font-size: 1.2rem; color: #5e72e4;"></i>
-                  </span>
-                  <input class="form-control" placeholder="Username" type="text" v-model="username" disabled>
-                  <button 
-                    type="button" 
-                    class="btn btn-outline-primary copy-btn" 
-                    @click="copyToClipboard(username)"
-                    :disabled="!username"
-                    title="Copy to clipboard">
-                    <i class="fas fa-copy"></i>
-                  </button>
-                </div>
-              </div>
-              <div class="form-group mb-3">
-                <div class="input-group input-group-alternative">
-                  <span class="input-group-text">
-                    <i class="fas fa-key" style="font-size: 1.2rem; color: #5e72e4;"></i>
-                  </span>
-                  <input class="form-control" placeholder="Password" type="text" v-model="password" disabled>
-                  <button 
-                    type="button" 
-                    class="btn btn-outline-primary copy-btn" 
-                    @click="copyToClipboard(password)"
-                    :disabled="!password"
-                    title="Copy to clipboard">
-                    <i class="fas fa-copy"></i>
-                  </button>
-                </div>
-              </div>
-              <div v-if="customMode" class="row">
-                <div class="col-md-6">
-                  <div class="form-group mb-3">
-                    <label class="form-control-label text-muted small">PacketFence Category</label>
-                    <select class="form-control form-control-alternative" v-model="selectedCategory">
-                      <option value="503">Staff BYOD</option>
-                      <option value="530">Guest WiFi</option>
-                    </select>
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="form-group mb-3">
-                    <label class="form-control-label text-muted small">Account Expiry</label>
-                    <select class="form-control form-control-alternative" v-model="selectedExpiry">
-                      <option value="1w">1 Week</option>
-                      <option value="2w">2 Weeks</option>
-                      <option value="1m">1 Month</option>
-                      <option value="6m">6 Months</option>
-                      <option value="1y">1 Year</option>
-                      <option value="3y">3 Years</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
+  <header class="app-header">
+    <div class="brand">
+      <AppIcon :size="36" label="WiFi generator" />
+      <span class="h4">WiFi generator</span>
+    </div>
+    <span class="eyebrow lockup">McKinnon SC · IT</span>
+  </header>
 
-              <div v-if="!customMode" class="form-check mt-4 text-center">
-                <input class="form-check-input" type="checkbox" v-model="agreedToTerms" id="termsCheckbox" style="float: none; display: inline-block; vertical-align: middle; margin-top: 0; width: 1.5rem; height: 1.5rem; cursor: pointer;">
-                <label class="form-check-label text-dark ms-2" for="termsCheckbox" style="vertical-align: middle; font-size: 1.25rem; cursor: pointer;">
-                  I agree not to share these WiFi credentials with any other staff members, students or guests.
-                </label>
-              </div>
+  <main class="page">
+    <div class="page-title">
+      <span class="eyebrow">{{ customMode ? 'Admin · custom account' : 'Staff WiFi' }}</span>
+      <h1 class="h1">{{ customMode ? 'Create a WiFi account' : 'Get a WiFi account' }}</h1>
+      <p>Each account works once, on one device.</p>
+    </div>
 
-              <div class="text-center">
-                <button 
-                  type="submit" 
-                  class="btn btn-primary my-4" 
-                  :disabled="loading || (!customMode && !agreedToTerms)">
-                  {{ loading ? 'Processing...' : (createdUser ? 'Generate Another WiFi Account' : (customMode ? 'Create Custom Account' : 'Generate WiFi Account')) }}
-                </button>
-              </div>
-            </form>
+    <form class="card" @submit.prevent="handleFormSubmit">
+      <div class="field">
+        <label for="email">Email</label>
+        <input id="email" class="input" type="email" v-model="email" :disabled="!customMode"
+          :placeholder="customMode ? 'e.g. jane.citizen@example.com' : ''">
+      </div>
 
-            <div v-if="createdUser" class="text-center mt-2">
-              <button 
-                type="button" 
-                class="btn btn-outline-info" 
-                @click="showHelpModal = true">
-                <i class="fas fa-question-circle"></i> Help Me Connect
-              </button>
-            </div>
-
-            <div v-if="createdUser" class="alert alert-success mt-4 text-center">
-              <p class="mb-2"><strong>User {{ createdUser.username }} successfully created.</strong></p>
-              <p class="mb-2">You can now login to Mckinnon SC WiFi.</p>
-              <p class="mb-0 text-muted">This user will expire on {{ expirationDate }}</p>
-            </div>
-            
-            <div v-if="error" class="alert alert-danger mt-4">
-              <p class="mb-0"><strong>Error:</strong> {{ error }}</p>
-            </div>
-
-            <div v-if="copySuccess" class="alert alert-info mt-4 copy-alert">
-              <p class="mb-0">{{ copySuccess }}</p>
-            </div>
-
-            <div class="alert alert-warning border-0 mt-5 mb-0 text-center">
-              <p class="mb-0 text-sm">
-                If you need assistance please see a campus IT Support Office or email help@mckinnonsc.vic.edu.au
-              </p>
-            </div>
-          </div>
+      <div class="field">
+        <label for="username">Username</label>
+        <div class="input-row">
+          <input id="username" class="input mono" type="text" :value="username" readonly placeholder="Generated for you">
+          <button type="button" class="icon-button" @click="copyToClipboard(username)" :disabled="!username" aria-label="Copy username">
+            <Copy :size="22" />
+          </button>
         </div>
       </div>
+
+      <div class="field">
+        <label for="password">Password</label>
+        <div class="input-row">
+          <input id="password" class="input mono" type="text" :value="password" readonly placeholder="Generated for you">
+          <button type="button" class="icon-button" @click="copyToClipboard(password)" :disabled="!password" aria-label="Copy password">
+            <Copy :size="22" />
+          </button>
+        </div>
+      </div>
+
+      <div v-if="customMode" class="field-grid">
+        <div class="field">
+          <label for="category">PacketFence category</label>
+          <select id="category" class="input" v-model="selectedCategory">
+            <option value="503">Staff BYOD</option>
+            <option value="530">Guest WiFi</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="expiry">Account expiry</label>
+          <select id="expiry" class="input" v-model="selectedExpiry">
+            <option value="1w">1 week</option>
+            <option value="2w">2 weeks</option>
+            <option value="1m">1 month</option>
+            <option value="6m">6 months</option>
+            <option value="1y">1 year</option>
+            <option value="3y">3 years</option>
+          </select>
+        </div>
+      </div>
+
+      <label v-if="!customMode" class="terms" for="termsCheckbox">
+        <input id="termsCheckbox" type="checkbox" v-model="agreedToTerms">
+        <span>I agree not to share these WiFi credentials with any other staff members, students or guests.</span>
+      </label>
+
+      <div class="actions">
+        <span v-if="loading" class="status" role="status"><span class="spin"></span>Creating account…</span>
+        <button type="submit" class="button primary" :disabled="loading || (!customMode && !agreedToTerms)">
+          {{ createdUser ? 'Generate another account' : (customMode ? 'Create account' : 'Generate WiFi account') }}
+        </button>
+      </div>
+    </form>
+
+    <div v-if="createdUser" class="callout success">
+      <span class="eyebrow callout-title"><Check :size="16" /> Done</span>
+      <p>Account <span class="data">{{ createdUser.username }}</span> is ready. You can now sign in to McKinnon SC WiFi.</p>
+      <p>It expires on {{ expirationDate }}.</p>
+      <div>
+        <button type="button" class="button secondary" @click="showHelpModal = true">
+          <CircleHelp :size="20" /> Help me connect
+        </button>
+      </div>
     </div>
-  </div>
 
-  <!-- Help Connection Modal -->
-  <div v-if="showHelpModal" class="modal-backdrop fade show"></div>
-  <div v-if="showHelpModal" class="modal fade show" style="display: block;" tabindex="-1" role="dialog">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-      <div class="modal-content shadow">
-        <div class="modal-header d-flex justify-content-between align-items-center">
-          <h5 class="modal-title">How to Connect</h5>
-          <button type="button" class="btn-close" @click="showHelpModal = false; selectedPlatform = null" aria-label="Close"></button>
-        </div>
-        <div class="modal-body p-0">
-          <div v-if="!selectedPlatform">
-            <p class="px-3 pt-3 text-muted small">Select your device to see connection instructions:</p>
-            <div class="list-group list-group-flush">
-              <button type="button" class="list-group-item list-group-item-action d-flex align-items-center py-3 border-0" @click="selectedPlatform = 'windows'">
-                <i class="fab fa-windows fa-2x me-3 text-primary" style="width: 40px; text-align: center;"></i>
-                <div>
-                  <h6 class="mb-0">Windows</h6>
-                  <small class="text-muted">Laptops and Desktops</small>
-                </div>
-                <i class="fas fa-chevron-right ms-auto text-muted"></i>
-              </button>
-              <button type="button" class="list-group-item list-group-item-action d-flex align-items-center py-3 border-0" @click="selectedPlatform = 'mac'">
-                <i class="fab fa-apple fa-2x me-3 text-dark" style="width: 40px; text-align: center;"></i>
-                <div>
-                  <h6 class="mb-0">Mac</h6>
-                  <small class="text-muted">MacBook and iMac</small>
-                </div>
-                <i class="fas fa-chevron-right ms-auto text-muted"></i>
-              </button>
-              <button type="button" class="list-group-item list-group-item-action d-flex align-items-center py-3 border-0" @click="selectedPlatform = 'ios'">
-                <i class="fas fa-mobile-alt fa-2x me-3 text-info" style="width: 40px; text-align: center;"></i>
-                <div>
-                  <h6 class="mb-0">iPhone / iPad</h6>
-                  <small class="text-muted">iOS Devices</small>
-                </div>
-                <i class="fas fa-chevron-right ms-auto text-muted"></i>
-              </button>
-              <button type="button" class="list-group-item list-group-item-action d-flex align-items-center py-3 border-0" @click="selectedPlatform = 'android'">
-                <i class="fab fa-android fa-2x me-3 text-success" style="width: 40px; text-align: center;"></i>
-                <div>
-                  <h6 class="mb-0">Android</h6>
-                  <small class="text-muted">Phones and Tablets</small>
-                </div>
-                <i class="fas fa-chevron-right ms-auto text-muted"></i>
-              </button>
-            </div>
-          </div>
+    <div v-if="error" class="callout danger" role="alert">
+      <span class="eyebrow callout-title"><CircleAlert :size="16" /> Failed</span>
+      <p>{{ error }}</p>
+    </div>
 
-          <!-- Platform Specific Content -->
-          <div v-else class="p-4 bg-white rounded">
-            <div class="d-flex align-items-center mb-4">
-              <button class="btn btn-sm btn-link p-0 me-3 text-decoration-none" @click="selectedPlatform = null">
-                <i class="fas fa-arrow-left"></i> Back
-              </button>
-              <h5 class="mb-0">Instructions for {{ platformName }}</h5>
-            </div>
-            <div class="instruction-steps">
-              <div class="d-flex mb-3">
-                <div class="step-number me-3">1</div>
-                <p class="mb-0">Connect to the <strong>McKinnon SC</strong> WiFi network.</p>
-              </div>
-              <div class="d-flex mb-3">
-                <div class="step-number me-3">2</div>
-                <div>
-                   <p class="mb-1">When prompted, enter your credentials:</p>
-                   <ul class="small ps-3 mb-0">
-                     <li>Username: <strong>{{ username }}</strong></li>
-                     <li>Password: <strong>{{ password }}</strong></li>
-                   </ul>
-                </div>
-              </div>
-              <div v-if="selectedPlatform === 'ios' || selectedPlatform === 'mac'" class="d-flex mb-3">
-                <div class="step-number me-3">3</div>
-                <p class="mb-0">If prompted to trust a certificate, click <strong>Trust</strong> or <strong>Accept</strong>.</p>
-              </div>
-              <div v-if="selectedPlatform === 'android'" class="d-flex mb-3">
-                <div class="step-number me-3">3</div>
-                <div>
-                   <p class="mb-1">Configure the following settings:</p>
-                   <ul class="small ps-3 mb-2">
-                     <li>EAP method: <strong>PEAP</strong></li>
-                     <li>Phase 2 authentication: <strong>MSCHAPv2</strong></li>
-                     <li>Anonymous Identity: <strong>{{ username }}</strong></li>
-                     <li>Identity: <strong>{{ username }}</strong></li>
-                     <li>Password: <strong>{{ password }}</strong></li>
-                   </ul>
-                   <p class="mb-1 small text-dark font-weight-bold">CA Certificate:</p>
-                   <ul class="small ps-3 mb-0">
-                     <li>Android 11-14: <strong>Don't validate</strong></li>
-                     <li>Android 15+: <strong>Trust on First Use</strong></li>
-                   </ul>
-                </div>
-              </div>
-              <div class="d-flex">
-                <div class="step-number me-3">{{ (selectedPlatform === 'ios' || selectedPlatform === 'mac' || selectedPlatform === 'android') ? 4 : 3 }}</div>
-                <p class="mb-0">Wait for your device to obtain an IP address and connect.</p>
-              </div>
-            </div>
-          </div>
+    <p class="caption footer-note">
+      Need a hand? See a campus IT support office or email
+      <a href="mailto:help@mckinnonsc.vic.edu.au">help@mckinnonsc.vic.edu.au</a>.
+    </p>
+  </main>
+
+  <div v-if="copySuccess" class="toast" role="status">{{ copySuccess }}</div>
+
+  <!-- Help connection dialog -->
+  <div v-if="showHelpModal" class="backdrop" @click.self="closeHelp">
+    <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="help-title">
+      <div class="dialog-header">
+        <button v-if="selectedPlatform" type="button" class="icon-button" @click="selectedPlatform = null" aria-label="Back">
+          <ArrowLeft :size="20" />
+        </button>
+        <h2 id="help-title" class="h3">{{ selectedPlatform ? platformName : 'How to connect' }}</h2>
+        <button type="button" class="icon-button close" @click="closeHelp" aria-label="Close">
+          <X :size="20" />
+        </button>
+      </div>
+
+      <div v-if="!selectedPlatform" class="dialog-body">
+        <p>Choose your device to see how to connect.</p>
+        <div class="platforms">
+          <button v-for="p in platforms" :key="p.id" type="button" class="platform" @click="selectedPlatform = p.id">
+            <component :is="p.icon" :size="24" />
+            <span class="platform-text">
+              <span class="title-sm">{{ p.name }}</span>
+              <span class="caption">{{ p.hint }}</span>
+            </span>
+            <ChevronRight :size="20" class="chevron" />
+          </button>
         </div>
-        <div class="modal-footer border-0">
-          <button type="button" class="btn btn-secondary" @click="showHelpModal = false; selectedPlatform = null">Close</button>
-        </div>
+      </div>
+
+      <ol v-else class="dialog-body steps">
+        <li>Connect to the <strong>McKinnon SC</strong> WiFi network.</li>
+        <li>
+          When asked, enter your details:
+          <dl class="creds">
+            <dt>Username</dt><dd class="data">{{ username }}</dd>
+            <dt>Password</dt><dd class="data">{{ password }}</dd>
+          </dl>
+        </li>
+        <li v-if="selectedPlatform === 'ios' || selectedPlatform === 'mac'">
+          If asked to trust a certificate, choose <strong>Trust</strong> or <strong>Accept</strong>.
+        </li>
+        <li v-if="selectedPlatform === 'android'">
+          Use these settings:
+          <dl class="creds">
+            <dt>EAP method</dt><dd>PEAP</dd>
+            <dt>Phase 2 authentication</dt><dd>MSCHAPv2</dd>
+            <dt>Anonymous identity</dt><dd class="data">{{ username }}</dd>
+            <dt>Identity</dt><dd class="data">{{ username }}</dd>
+            <dt>Password</dt><dd class="data">{{ password }}</dd>
+            <dt>CA certificate</dt><dd>Android 11–14: <strong>Don't validate</strong><br>Android 15+: <strong>Trust on first use</strong></dd>
+          </dl>
+        </li>
+        <li>Wait for your device to get an IP address and connect.</li>
+      </ol>
+
+      <div class="dialog-footer">
+        <button type="button" class="button secondary" @click="closeHelp">Close</button>
       </div>
     </div>
   </div>
@@ -243,6 +162,8 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
+import { ArrowLeft, Check, ChevronRight, CircleAlert, CircleHelp, Copy, Laptop, Monitor, Smartphone, TabletSmartphone, X } from 'lucide-vue-next';
+import AppIcon from '../components/AppIcon.vue';
 
 // Fallback name pool, only reached if /api-internal/user-info gives us no email.
 const ANIMALS = 'koala wombat echidna platypus quokka possum dingo emu numbat bilby'.split(' ');
@@ -271,15 +192,14 @@ const isAdmin = computed(() => {
 // Admins always get the custom login form.
 const customMode = isAdmin;
 
-const platformName = computed(() => {
-  const names = {
-    windows: 'Windows',
-    mac: 'Mac',
-    ios: 'iPhone / iPad',
-    android: 'Android'
-  };
-  return names[selectedPlatform.value] || '';
-});
+const platforms = [
+  { id: 'windows', name: 'Windows', hint: 'Laptops and desktops', icon: Monitor },
+  { id: 'mac', name: 'Mac', hint: 'MacBook and iMac', icon: Laptop },
+  { id: 'ios', name: 'iPhone / iPad', hint: 'iOS devices', icon: Smartphone },
+  { id: 'android', name: 'Android', hint: 'Phones and tablets', icon: TabletSmartphone },
+];
+
+const platformName = computed(() => platforms.find(p => p.id === selectedPlatform.value)?.name || '');
 
 // --- Lifecycle Hooks ---
 onMounted(async () => {
@@ -296,6 +216,11 @@ onMounted(async () => {
 });
 
 // --- Methods ---
+const closeHelp = () => {
+  showHelpModal.value = false;
+  selectedPlatform.value = null;
+};
+
 const handleFormSubmit = async () => {
   await generateAndCreateUser();
 };
@@ -365,14 +290,14 @@ const copyToClipboard = (text) => {
       if (copiedTimeout) {
         clearTimeout(copiedTimeout);
       }
-      copySuccess.value = `Copied "${text}" to clipboard!`;
+      copySuccess.value = `Copied "${text}"`;
       copiedTimeout = setTimeout(() => {
         copySuccess.value = null;
       }, 3000);
     })
     .catch(err => {
       console.error('Failed to copy text: ', err);
-      copySuccess.value = 'Failed to copy. Please try again.';
+      copySuccess.value = "Couldn't copy. Try again.";
        if (copiedTimeout) clearTimeout(copiedTimeout);
        copiedTimeout = setTimeout(() => { copySuccess.value = null; }, 3000);
     });
@@ -381,157 +306,258 @@ const copyToClipboard = (text) => {
 </script>
 
 <style scoped>
-.container {
-  min-height: 100vh;
+/* Every value comes from tokens.css (McKinnon IT design system). */
+
+/* Type helpers */
+.h1 { margin: 0; font: var(--text-display-sm); letter-spacing: -0.03em; color: var(--ink); }
+.h3 { margin: 0; font: var(--text-h3); letter-spacing: -0.02em; color: var(--ink); }
+.h4 { font: var(--text-h3); letter-spacing: -0.02em; color: var(--ink); }
+.title-sm { font: var(--text-title-sm); color: var(--ink); }
+.caption { font: var(--text-caption); color: var(--ink-muted); }
+.eyebrow { font: var(--text-eyebrow); letter-spacing: 0.06em; color: var(--accent); }
+.lockup { color: var(--ink-muted); }
+.eyebrow-sm { font: var(--text-eyebrow-sm); letter-spacing: 0.05em; color: var(--ink-muted); }
+.data, .mono { font-family: var(--font-mono); }
+.data { font: var(--text-data); color: var(--ink); }
+p { margin: 0; }
+a { color: var(--link); }
+
+/* Shell */
+.app-header {
+  height: 64px;
   display: flex;
   align-items: center;
-  justify-content: center;
-  position: relative;
+  justify-content: space-between;
+  padding: 0 var(--space-5) 0 var(--space-4);
+  background: var(--surface-raised);
+  border-bottom: 1px solid var(--border);
 }
+.brand { display: flex; align-items: center; gap: var(--space-3); }
 
-.row {
-  width: 100%;
-}
-
-.card {
-  border-radius: 0.5rem;
-  width: 100%;
-  max-width: 2000px;
+.page {
+  max-width: 880px;
+  min-height: calc(100vh - 64px);
   margin: 0 auto;
-}
-
-.card-header {
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-}
-
-.btn-primary {
-  background-color: #5e72e4;
-  border-color: #5e72e4;
-  font-size: clamp(1rem, 3vw, 1.5rem);
-  padding: clamp(0.5rem, 2vw, 0.75rem) clamp(0.75rem, 4vw, 1.5rem);
-}
-
-.btn-primary:hover {
-  background-color: #324cdd;
-  border-color: #324cdd;
-}
-
-.input-group-text {
-  background-color: #fff;
-  width: 50px;
+  padding: var(--space-6) var(--space-4);
   display: flex;
+  flex-direction: column;
   justify-content: center;
+  gap: var(--space-5);
+}
+.page-title { display: flex; flex-direction: column; gap: var(--space-3); }
+.page-title p { font: var(--text-lead); }
+
+/* Card and fields */
+.card {
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+.field { display: flex; flex-direction: column; gap: var(--space-2); }
+.field label { font: var(--text-body); font-weight: 600; color: var(--ink); }
+.field-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); }
+
+.input {
+  width: 100%;
+  height: var(--control-height-touch);
+  padding: 0 var(--space-4);
+  font-family: var(--font-sans);
+  font-size: 18px;
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+.input.mono { font-family: var(--font-mono); font-size: 18px; }
+.input::placeholder { color: var(--ink-muted); opacity: 0.8; }
+.input[readonly], .input:disabled { background: var(--surface-sunken); color: var(--ink); }
+.input-row { display: flex; gap: var(--space-2); }
+
+/* Focus ring on everything */
+.input:focus-visible, .button:focus-visible, .icon-button:focus-visible, .platform:focus-visible,
+.terms input:focus-visible, a:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
 }
 
-.form-control {
-  font-size: clamp(0.9rem, 2vw, 1.2rem);
-  padding: clamp(0.5rem, 2vw, 0.75rem) clamp(0.5rem, 2vw, 1rem);
-}
-
-.form-control:disabled {
-  background-color: #e9ecef;
-  opacity: 1;
-}
-
-.card-body {
-  padding: clamp(1.5rem, 5vw, 5rem) clamp(1.5rem, 8vw, 8rem);
-}
-
-h2 {
-  font-size: clamp(1.5rem, 5vw, 2.5rem);
-}
-
-.alert {
-  font-size: clamp(0.9rem, 2vw, 1.2rem);
-}
-
-/* Media query for mobile devices */
-@media (max-width: 768px) {
-  .card-body {
-    padding: 2rem 1.5rem;
-  }
-  
-  .input-group-text, .form-control {
-    font-size: 1rem;
-  }
-  
-  h2 {
-    font-size: 1.75rem;
-  }
-
-  .admin-controls {
-    top: 10px;
-    left: 10px;
-  }
-}
-
-.copy-btn {
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
-}
-
-.copy-alert {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  z-index: 1050;
-  min-width: 200px;
-  max-width: 400px;
-  animation: fadeIn 0.3s, fadeOut 0.5s 2.5s;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes fadeOut {
-  from { opacity: 1; }
-  to { opacity: 0; }
-}
-
-.modal-backdrop {
-  z-index: 1040;
-  background-color: rgba(0, 0, 0, 0.5);
-}
-
-.modal {
-  z-index: 1050;
-}
-
-.modal-content {
-  border-radius: 1rem;
-  border: none;
-}
-
-.btn-close:hover {
-  opacity: 0.75;
-}
-
-.list-group-item {
-  transition: background-color 0.2s;
+.terms {
+  display: flex;
+  gap: var(--space-3);
+  align-items: flex-start;
+  font: var(--text-body);
+  color: var(--ink);
   cursor: pointer;
 }
+.terms input { width: 24px; height: 24px; margin: 2px 0 0; flex: none; accent-color: var(--brand); cursor: pointer; }
 
-.list-group-item:hover {
-  background-color: #f8f9fe !important;
+/* Buttons */
+.actions { display: flex; align-items: center; justify-content: flex-end; gap: var(--space-3); flex-wrap: wrap; }
+.button {
+  height: var(--control-height-touch);
+  padding: 0 var(--space-6);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-sans);
+  font-size: 17px;
+  font-weight: 500;
+  line-height: 1;
+  border: 1px solid transparent;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: background-color 150ms ease-out, border-color 150ms ease-out;
+}
+.button:disabled { opacity: 0.5; cursor: not-allowed; }
+.button.primary { background: var(--brand); border-color: var(--brand); color: var(--on-brand); }
+.button.primary:hover:not(:disabled) { background: var(--brand-hover); border-color: var(--brand-hover); }
+.button.secondary { background: transparent; border-color: var(--border); color: var(--ink); }
+.button.secondary:hover:not(:disabled) { background: var(--surface-sunken); }
+
+.icon-button {
+  width: var(--control-height-touch);
+  height: var(--control-height-touch);
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ink);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: background-color 150ms ease-out;
+}
+.icon-button:hover:not(:disabled) { background: var(--surface-sunken); }
+.icon-button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Loading: the compact ring from the RadiantSpinner README */
+.status { display: inline-flex; align-items: center; font: var(--text-body); color: var(--ink-muted); }
+.spin {
+  display: inline-block; width: 18px; height: 18px; margin-right: var(--space-2); border-radius: 50%;
+  background: conic-gradient(from 0deg, transparent 0, var(--ramp-3), var(--ramp-4), var(--ramp-6), var(--ramp-7), var(--ramp-8));
+  -webkit-mask: radial-gradient(circle, transparent 5.5px, #000 6px);
+  mask: radial-gradient(circle, transparent 5.5px, #000 6px);
+  animation: spin 0.9s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Callouts */
+.callout {
+  background: var(--status-tint);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  font: var(--text-body);
+  color: var(--ink-muted);
+}
+.callout > div { margin-top: var(--space-2); }
+.callout-title { display: inline-flex; align-items: center; gap: var(--space-1); }
+.callout.success .callout-title { color: var(--success); }
+.callout.danger { border-color: var(--danger); }
+.callout.danger .callout-title { color: var(--danger); }
+
+.footer-note { text-align: center; font: var(--text-body-sm); }
+
+/* Toast */
+.toast {
+  position: fixed;
+  right: var(--space-5);
+  bottom: var(--space-5);
+  max-width: min(400px, calc(100vw - 2 * var(--space-5)));
+  padding: var(--space-3) var(--space-4);
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-float);
+  font: var(--text-body-sm);
+  color: var(--ink);
+  z-index: 20;
 }
 
-.step-number {
-  width: 24px;
-  height: 24px;
-  background-color: #5e72e4;
-  color: white;
-  border-radius: 50%;
+/* Dialog */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.8rem;
-  font-weight: bold;
-  flex-shrink: 0;
+  padding: var(--space-4);
+  background: color-mix(in srgb, var(--ramp-1) 45%, transparent);
+}
+.dialog {
+  width: 100%;
+  max-width: 560px;
+  max-height: calc(100vh - 2 * var(--space-4));
+  overflow-y: auto;
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-float);
+}
+.dialog-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--border);
+}
+.dialog-header .close { margin-left: auto; border-color: transparent; }
+.dialog-body { padding: var(--space-5); font: var(--text-body); display: flex; flex-direction: column; gap: var(--space-4); }
+.dialog-footer { display: flex; justify-content: flex-end; padding: var(--space-4) var(--space-5); border-top: 1px solid var(--border); }
+
+.platforms { display: flex; flex-direction: column; gap: var(--space-2); }
+.platform {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  min-height: var(--control-height-touch);
+  padding: var(--space-3) var(--space-4);
+  text-align: left;
+  color: var(--ink);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: background-color 150ms ease-out;
+}
+.platform:hover { background: var(--status-tint); }
+.platform-text { display: flex; flex-direction: column; }
+.platform-text .title-sm { font: var(--text-body); font-weight: 600; }
+.chevron { margin-left: auto; color: var(--ink-muted); }
+
+.steps { margin: 0; padding-left: calc(var(--space-5) + var(--space-4)); color: var(--ink); }
+.steps li { padding-left: var(--space-1); }
+.steps strong { font-weight: 600; }
+.creds {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: var(--space-1) var(--space-4);
+  margin: var(--space-2) 0 0;
+  font: var(--text-body-sm);
+  color: var(--ink-muted);
+}
+.creds dd { margin: 0; color: var(--ink); }
+
+@media (max-width: 767px) {
+  .page { padding-top: var(--space-6); }
+  .card { padding: var(--space-4); }
+  .field-grid { grid-template-columns: 1fr; }
+  .actions .button { width: 100%; justify-content: center; height: var(--control-height-touch); }
+  .icon-button { width: var(--control-height-touch); height: var(--control-height-touch); }
+  .input { height: var(--control-height-touch); }
 }
 
-.instruction-steps p {
-  line-height: 1.5;
+@media (prefers-reduced-motion: reduce) {
+  .spin { animation-duration: 3s; }
+  .button, .icon-button, .platform { transition: none; }
 }
-</style> 
+</style>

@@ -1,0 +1,166 @@
+/* McKinnon IT — compiled from tokens.json. Themes: paper, navy, dark. Rebuilt 2026-10-06. */
+:root, [data-theme="paper"] {
+  --surface: #f6f7f4;
+  --surface-raised: #ffffff;
+  --surface-sunken: #efeee9;
+  --ink: #0a1b44;
+  --ink-muted: #4e514c;
+  --ink-subtle: #9a9d96;
+  --brand: #0f216d;
+  --on-brand: #f6f7f4;
+  --brand-hover: #2d3fbf;
+  --accent: #2f6fe0;
+  --link: #1f4fa8;
+  --border: #dcdad2;
+  --border-strong: #6f736c;
+  --focus: #2f6fe0;
+  --success: #1e7b4f;
+  --warning: #8f4b00;
+  --danger: #b3261e;
+  --status-tint: #e8eeff;
+  --ramp-1: #0a1b44;
+  --ramp-2: #0f216d;
+  --ramp-3: #1e4bd8;
+  --ramp-4: #4c86f7;
+  --ramp-5: #8fb0fa;
+  --ramp-6: #c9b8f2;
+  --ramp-7: #f4b3ce;
+  --ramp-8: #fbd8a6;
+  --stat-1: var(--ramp-3);
+  --stat-2: var(--ramp-2);
+  --stat-3: var(--ramp-1);
+  --shadow-none: none;
+  --shadow-float: 0 8px 24px rgba(10,27,68,0.14);
+}
+[data-theme="navy"] {
+  --surface: #0a1b44;
+  --surface-raised: #0f216d;
+  --surface-sunken: #071335;
+  --ink: #f0edf9;
+  --ink-muted: #a9b8e8;
+  --ink-subtle: #6e7a9e;
+  --brand: #8faef2;
+  --on-brand: #0a1b44;
+  --brand-hover: #a9c0f7;
+  --accent: #4c86f7;
+  --link: #8fb0fa;
+  --border: #213670;
+  --border-strong: #8797c9;
+  --focus: #8fb0fa;
+  --success: #7ed3a4;
+  --warning: #fbd8a6;
+  --danger: #f4a3a3;
+  --status-tint: #142b6e;
+  --ramp-1: #0a1b44;
+  --ramp-2: #0f216d;
+  --ramp-3: #1e4bd8;
+  --ramp-4: #4c86f7;
+  --ramp-5: #8fb0fa;
+  --ramp-6: #c9b8f2;
+  --ramp-7: #f4b3ce;
+  --ramp-8: #fbd8a6;
+  --stat-1: var(--ramp-5);
+  --stat-2: var(--ramp-6);
+  --stat-3: var(--ramp-8);
+  --shadow-none: none;
+  --shadow-float: 0 8px 24px rgba(0,0,0,0.5);
+}
+[data-theme="dark"] {
+  --surface: #141414;
+  --surface-raised: #1f1f1f;
+  --surface-sunken: #0d0d0d;
+  --ink: #ffffff;
+  --ink-muted: #bcbcbc;
+  --ink-subtle: #808080;
+  --brand: #1e4bd8;
+  --on-brand: #ffffff;
+  --brand-hover: #1a3fba;
+  --accent: #4c86f7;
+  --link: #8fb0fa;
+  --border: #2f2f2f;
+  --border-strong: #8c8c8c;
+  --focus: #8fb0fa;
+  --success: #46d369;
+  --warning: #f5b75a;
+  --danger: #f26d6d;
+  --status-tint: #2d2d2d;
+  --ramp-1: #0a1b44;
+  --ramp-2: #0f216d;
+  --ramp-3: #1e4bd8;
+  --ramp-4: #4c86f7;
+  --ramp-5: #8fb0fa;
+  --ramp-6: #c9b8f2;
+  --ramp-7: #f4b3ce;
+  --ramp-8: #fbd8a6;
+  --stat-1: var(--ramp-5);
+  --stat-2: var(--ramp-6);
+  --stat-3: var(--ramp-8);
+  --shadow-none: none;
+  --shadow-float: 0 6px 24px rgba(0,0,0,0.7);
+}
+:root {
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+  --space-9: 96px;
+  --measure: 680px;
+  --print-margin: 68px;
+  --radius-none: 0px;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-full: 9999px;
+  --radius-squircle: 34%;
+  --radius-app-icon: 22.37%;
+  --control-height: 40px;
+  --control-height-touch: 48px;
+  --content-max: 1200px;
+  --sidebar: 264px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1100px;
+  --icon-sm: 16px;
+  --icon-md: 20px;
+  --icon-lg: 24px;
+  --font-sans: "Archivo", "Archivo Fallback", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --text-display-xl: 700 82px/0.92 var(--font-sans);
+  --text-display: 700 56px/1.0 var(--font-sans);
+  --text-display-sm: 700 40px/1.05 var(--font-sans);
+  --text-h1: 700 32px/1.05 var(--font-sans);
+  --text-h2: 700 28px/1.05 var(--font-sans);
+  --text-h3: 700 20px/1.3 var(--font-sans);
+  --text-h4: 600 15px/1.4 var(--font-sans);
+  --text-lead: 400 20px/1.5 var(--font-sans);
+  --text-body: 400 17px/1.6 var(--font-sans);
+  --text-title-sm: 500 14px/1.45 var(--font-sans);
+  --text-body-sm: 400 15px/1.55 var(--font-sans);
+  --text-body-print: 400 14px/1.45 var(--font-sans);
+  --text-caption: 400 13px/1.45 var(--font-sans);
+  --text-eyebrow: 600 12px/1.2 var(--font-mono);
+  --text-eyebrow-sm: 600 11px/1.2 var(--font-mono);
+  --text-data: 400 13px/1.5 var(--font-mono);
+  --text-code: 400 13px/1.6 var(--font-mono);
+}
+.display-xl { font-family: var(--font-sans); font-size: 82px; line-height: 0.92; font-weight: 700; letter-spacing: -0.04em; }
+.display { font-family: var(--font-sans); font-size: 56px; line-height: 1.0; font-weight: 700; letter-spacing: -0.035em; }
+.display-sm { font-family: var(--font-sans); font-size: 40px; line-height: 1.05; font-weight: 700; letter-spacing: -0.03em; }
+.h1 { font-family: var(--font-sans); font-size: 32px; line-height: 1.05; font-weight: 700; letter-spacing: -0.03em; }
+.h2 { font-family: var(--font-sans); font-size: 28px; line-height: 1.05; font-weight: 700; letter-spacing: -0.03em; }
+.h3 { font-family: var(--font-sans); font-size: 20px; line-height: 1.3; font-weight: 700; letter-spacing: -0.02em; }
+.h4 { font-family: var(--font-sans); font-size: 15px; line-height: 1.4; font-weight: 600; letter-spacing: -0.01em; }
+.lead { font-family: var(--font-sans); font-size: 20px; line-height: 1.5; font-weight: 400; letter-spacing: 0; }
+.body { font-family: var(--font-sans); font-size: 17px; line-height: 1.6; font-weight: 400; letter-spacing: 0; }
+.title-sm { font-family: var(--font-sans); font-size: 14px; line-height: 1.45; font-weight: 500; letter-spacing: 0; }
+.body-sm { font-family: var(--font-sans); font-size: 15px; line-height: 1.55; font-weight: 400; letter-spacing: 0; }
+.body-print { font-family: var(--font-sans); font-size: 14px; line-height: 1.45; font-weight: 400; letter-spacing: 0; }
+.caption { font-family: var(--font-sans); font-size: 13px; line-height: 1.45; font-weight: 400; letter-spacing: 0; }
+.eyebrow { font-family: var(--font-mono); font-size: 12px; line-height: 1.2; font-weight: 600; letter-spacing: 0.06em; }
+.eyebrow-sm { font-family: var(--font-mono); font-size: 11px; line-height: 1.2; font-weight: 600; letter-spacing: 0.05em; }
+.data { font-family: var(--font-mono); font-size: 13px; line-height: 1.5; font-weight: 400; letter-spacing: 0; }
+.code { font-family: var(--font-mono); font-size: 13px; line-height: 1.6; font-weight: 400; letter-spacing: 0; }
